@@ -3,6 +3,20 @@ import Header from "./Header";
 import "./AddSubscriber.css";
 
 class AddSubscriber extends Component {
+  constructor() {
+    super();
+    this.state = {
+      id: 0,
+      name: "",
+      phone: "",
+    };
+  }
+  inputChangedHandler = (e) => {
+      const state = this.state;
+      state[e.target.name] = e.target.value;
+      this.setState(state);
+      console.log(this.state);
+    };
   render() {
     return (
       <div>
@@ -15,7 +29,13 @@ class AddSubscriber extends Component {
             Name:{" "}
           </label>
           <br />
-          <input type="text" id="name" name="name" className="input-control" />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            className="input-control"
+            onChange={this.inputChangedHandler}
+          />
           <br />
           <label htmlFor="phone" className="label-control">
             Phone:{" "}
@@ -26,6 +46,7 @@ class AddSubscriber extends Component {
             id="phone"
             name="phone"
             className="input-control"
+            onChange={this.inputChangedHandler}
           />
           <div className="subscriber-info-container">
             <span className="subscriber-to-add-heading">
