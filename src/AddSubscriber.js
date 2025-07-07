@@ -12,19 +12,28 @@ class AddSubscriber extends Component {
     };
   }
   inputChangedHandler = (e) => {
-      const state = this.state;
-      state[e.target.name] = e.target.value;
-      this.setState(state);
-      console.log(this.state);
-    };
+    const state = this.state;
+    state[e.target.name] = e.target.value;
+    this.setState(state);
+    // console.log(this.state);
+  };
+  onFormSubmitted = (e) => {
+    e.preventDefault();
+    this.props.addSubscriberHandler(this.state);
+    this.setState({ id: 0, name: "", phone: "" });
+  };
   render() {
+    const { name, phone } = this.state;
     return (
       <div>
         <Header heading="Add Subscriber" />
         <div className="component-body-container">
           <button className="custom-btn">Back</button>
         </div>
-        <form className="subscriber-form">
+        <form
+          className="subscriber-form"
+          onSubmit={this.onFormSubmitted.bind(this)}
+        >
           <label htmlFor="name" className="label-control">
             Name:{" "}
           </label>
@@ -42,7 +51,7 @@ class AddSubscriber extends Component {
           </label>
           <br />
           <input
-            type="number"
+            type="text"
             id="phone"
             name="phone"
             className="input-control"
@@ -53,9 +62,9 @@ class AddSubscriber extends Component {
               Subscriber to be added:{" "}
             </span>
             <br />
-            <span className="subscriber-info">Name: </span>
+            <span className="subscriber-info">Name: {name}</span>
             <br />
-            <span className="subscriber-info">Phone: </span>
+            <span className="subscriber-info">Phone: {phone}</span>
           </div>
           <button type="submit" className="custom-btn add-btn">
             Submit
