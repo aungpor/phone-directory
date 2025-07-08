@@ -67,37 +67,44 @@ const ShowSubscribers = ({ subscribersList, addSubscriberHandler, deleteSubscrib
   return (
     <div>
       <Header heading="Phone Directory" />
-      <div className="component-body-container">
-        <div style={{ marginBottom: "12px" }}>
-          Name
-          <Input
-            value={name}
-            onChange={(e) => handleInputChange("name", e.target.value)}
-            status={errors.name ? "error" : ""}
-            placeholder="Enter name"
-          />
-          {errors.name && (
-            <div style={{ color: "red", fontSize: "12px" }}>{errors.name}</div>
-          )}
-        </div>
+      <form
+  className="component-body-container"
+  onSubmit={(e) => {
+    e.preventDefault(); // ป้องกัน reload หน้า
+    handleAdd();        // เรียกฟังก์ชัน add
+  }}
+>
+  <div style={{ marginBottom: "12px" }}>
+    Name
+    <Input
+      value={name}
+      onChange={(e) => handleInputChange("name", e.target.value)}
+      status={errors.name ? "error" : ""}
+      placeholder="Enter name"
+    />
+    {errors.name && (
+      <div style={{ color: "red", fontSize: "12px" }}>{errors.name}</div>
+    )}
+  </div>
 
-        <div style={{ marginBottom: "12px" }}>
-          Phone
-          <Input
-            value={phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
-            status={errors.phone ? "error" : ""}
-            placeholder="Enter phone number"
-          />
-          {errors.phone && (
-            <div style={{ color: "red", fontSize: "12px" }}>{errors.phone}</div>
-          )}
-        </div>
+  <div style={{ marginBottom: "12px" }}>
+    Phone
+    <Input
+      value={phone}
+      onChange={(e) => handleInputChange("phone", e.target.value)}
+      status={errors.phone ? "error" : ""}
+      placeholder="Enter phone number"
+    />
+    {errors.phone && (
+      <div style={{ color: "red", fontSize: "12px" }}>{errors.phone}</div>
+    )}
+  </div>
 
-        <button className="custom-btn add-btn" onClick={handleAdd}>
-          Add
-        </button>
-      </div>
+  <button className="custom-btn add-btn" type="submit">
+    Add
+  </button>
+</form>
+
 
       <Table
         columns={columns}
