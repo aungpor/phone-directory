@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ShowSubscribers from "./ShowSubscribers";
-import { fetchContacts } from "./services/data.config";
+import { fetchContacts, addContact, deleteContact } from "./services/data.config";
 
 function PhoneDirectory() {
   const [subscribersList, setSubscribersList] = useState([]);
@@ -11,22 +11,41 @@ function PhoneDirectory() {
   }, []);
 
   const fetchData = async () => {
-    setLoading(true);           // เริ่ม loading
-    const data = await fetchContacts();
-    setSubscribersList(data);
-    setLoading(false);          // โหลดเสร็จ
+    setLoading(true); // ✅ เริ่ม loading
+    try {
+      const data = await fetchContacts();
+      console.log(data);
+      
+      setSubscribersList(data);
+    } catch (error) {
+      console.error("❌ Error fetching contacts:", error);
+    } finally {
+      setLoading(false); // ✅ หยุด loading เสมอ
+    }
   };
 
-  const addSubscriberHandler = (newSubscriber) => {
-    const newId =
-      subscribersList.length > 0
-        ? subscribersList[subscribersList.length - 1].id + 1
-        : 1;
-    setSubscribersList([...subscribersList, { ...newSubscriber, id: newId }]);
+  const addSubscriberHandler = async (newSubscriber) => {
+    setLoading(true); // ✅ เริ่ม loading ตอน add
+    try {
+      const added = await addContact(newSubscriber);
+      setSubscribersList((prev) => [added,...prev]);
+    } catch (error) {
+      console.error("❌ Error adding contact:", error);
+    } finally {
+      setLoading(false); // ✅ หยุด loading
+    }
   };
 
-  const deleteSubscriberHandler = (id) => {
-    setSubscribersList(subscribersList.filter((s) => s.id !== id));
+  const deleteSubscriberHandler = async (id) => {
+    setLoading(true); // ✅ เริ่ม loading ตอน delete
+    try {
+      await deleteContact(id);
+      setSubscribersList((prev) => prev.filter((s) => s.id !== id));
+    } catch (error) {
+      console.error("❌ Error deleting contact:", error);
+    } finally {
+      setLoading(false); // ✅ หยุด loading
+    }
   };
 
   return (
@@ -34,7 +53,7 @@ function PhoneDirectory() {
       subscribersList={subscribersList}
       addSubscriberHandler={addSubscriberHandler}
       deleteSubscriberHandler={deleteSubscriberHandler}
-      loading={loading}  // ส่ง loading ลงไปด้วย
+      loading={loading} // ✅ ให้ Table loading ด้วย
     />
   );
 }
