@@ -1,48 +1,120 @@
 import React, { Component } from "react";
+import { Input, Table, Button } from "antd";
 import Header from "./Header";
-import { Input } from "antd";
 import "./ShowSubscribers.css";
 
 class ShowSubscribers extends Component {
   state = {
     name: "",
     phone: "",
+    errors: {
+      name: null,
+      phone: null,
+    },
   };
 
   handleInputChange = (field, value) => {
     this.setState({ [field]: value });
+
+    // ล้าง error ขณะพิมพ์ใหม่
+    this.setState((prevState) => ({
+      errors: {
+        ...prevState.errors,
+        [field]: null,
+      },
+    }));
   };
 
+  validateInputs = () => {
+  const { name, phone } = this.state;
+  const errors = {};
+
+  if (!name.trim()) {
+    errors.name = "Name is required";
+  }
+
+  if (!phone.trim()) {
+    errors.phone = "Phone is required";
+  } else if (!/^\d{10}$/.test(phone)) {
+    errors.phone = "Phone must be exactly 10 digits";
+  }
+
+  this.setState({ errors });
+  return Object.keys(errors).length === 0;
+};
+
+
   handleAdd = () => {
+    if (!this.validateInputs()) return;
+
     const { name, phone } = this.state;
-    if (name && phone) {
-      this.props.addSubscriberHandler({ name, phone });
-      this.setState({ name: "", phone: "" });
-    }
+    this.props.addSubscriberHandler({ name, phone });
+
+    this.setState({
+      name: "",
+      phone: "",
+      errors: { name: null, phone: null },
+    });
   };
 
   render() {
+    const { name, phone, errors } = this.state;
+
+    const columns = [
+      {
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        width: "30%",
+      },
+      {
+        title: "Phone",
+        dataIndex: "phone",
+        key: "phone",
+        width: "40%",
+      },
+      {
+        title: "Action",
+        key: "action",
+        width: "30%",
+        render: (_, record) => (
+          <Button
+            danger
+            onClick={() => this.props.deleteSubscriberHandler(record.id)}
+          >
+            Delete
+          </Button>
+        ),
+      },
+    ];
+
     return (
       <div>
         <Header heading="Phone Directory" />
         <div className="component-body-container">
-          <div>
+          <div style={{ marginBottom: "12px" }}>
             Name
             <Input
-              value={this.state.name}
-              onChange={(e) =>
-                this.handleInputChange("name", e.target.value)
-              }
+              value={name}
+              onChange={(e) => this.handleInputChange("name", e.target.value)}
+              status={errors.name ? "error" : ""}
+              placeholder="Enter name"
             />
+            {errors.name && (
+              <div style={{ color: "red", fontSize: "12px" }}>{errors.name}</div>
+            )}
           </div>
-          <div>
+          <div style={{ marginBottom: "12px" }}>
             Phone
             <Input
-              value={this.state.phone}
-              onChange={(e) =>
-                this.handleInputChange("phone", e.target.value)
-              }
+              value={phone}
+              onChange={(e) => this.handleInputChange("phone", e.target.value)}
+              status={errors.phone ? "error" : ""}
+              placeholder="Enter phone number"
             />
+            {errors.phone && (
+              <div style={{ color: "red", fontSize: "12px" }}>{errors.phone}</div>
+            )}
           </div>
 
           <button className="custom-btn add-btn" onClick={this.handleAdd}>
@@ -50,28 +122,12 @@ class ShowSubscribers extends Component {
           </button>
         </div>
 
-        <div className="grid-container heading-container">
-          <span className="grid-item name-heading">Name</span>
-          <span className="grid-item phone-heading">Phone</span>
-        </div>
-
-        {this.props.subscribersList.map((sub) => (
-          <div className="grid-container" key={sub.id}>
-            <span className="grid-item">{sub.name}</span>
-            <span className="grid-item">{sub.phone}</span>
-            <span className="grid-item action-btn-container">
-              <button
-                className="custom-btn delete-btn"
-                onClick={() =>
-                  this.props.deleteSubscriberHandler(sub.id)
-                }
-              >
-                Delete
-              </button>
-            </span>
-          </div>
-        ))}
-        
+        <Table
+          columns={columns}
+          dataSource={this.props.subscribersList}
+          rowKey="id"
+          pagination={false}
+        />
       </div>
     );
   }
