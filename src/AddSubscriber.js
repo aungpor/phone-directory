@@ -22,6 +22,8 @@ class AddSubscriber extends Component {
     this.props.addSubscriberHandler(this.state);
     this.setState({ id: 0, name: "", phone: "" });
   };
+
+  
   render() {
     const { name, phone } = this.state;
     return (

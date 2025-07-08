@@ -1,53 +1,42 @@
-import React, { Component } from "react";
-import AddSubscriber from "./AddSubscriber";
+import React, { useState, useEffect } from "react";
 import ShowSubscribers from "./ShowSubscribers";
+import { fetchContacts } from "./services/data.config";
 
-class PhoneDirectory extends Component {
-  constructor() {
-    super();
-    this.state = {
-      subscribersList: [
-        {
-          id: 1,
-          name: "asim",
-          phone: "9999999999",
-        },
-        {
-          id: 2,
-          name: "wasim",
-          phone: "88888888888",
-        },
-      ],
-    };
-  }
+function PhoneDirectory() {
+  const [subscribersList, setSubscribersList] = useState([]);
+  const [loading, setLoading] = useState(false); // สถานะ loading
 
-  addSubscriberHandler = (newSubscriber) => {
-    let subscribersList = this.state.subscribersList;
-    if (subscribersList.length > 0) {
-      newSubscriber.id = subscribersList[subscribersList.length - 1].id + 1;
-    } else {
-      newSubscriber.id = 1;
-    }
-    subscribersList.push(newSubscriber);
-    this.setState({ subscribersList: subscribersList });
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);           // เริ่ม loading
+    const data = await fetchContacts();
+    setSubscribersList(data);
+    setLoading(false);          // โหลดเสร็จ
   };
 
-  deleteSubscriberHandler = (id) => {
-    const updatedList = this.state.subscribersList.filter(
-      (subscriber) => subscriber.id !== id
-    );
-    this.setState({ subscribersList: updatedList });
+  const addSubscriberHandler = (newSubscriber) => {
+    const newId =
+      subscribersList.length > 0
+        ? subscribersList[subscribersList.length - 1].id + 1
+        : 1;
+    setSubscribersList([...subscribersList, { ...newSubscriber, id: newId }]);
   };
 
-  render() {
-    return (
-      <ShowSubscribers
-        subscribersList={this.state.subscribersList}
-        addSubscriberHandler={this.addSubscriberHandler}
-        deleteSubscriberHandler={this.deleteSubscriberHandler}
-      />
-    );
-  }
+  const deleteSubscriberHandler = (id) => {
+    setSubscribersList(subscribersList.filter((s) => s.id !== id));
+  };
+
+  return (
+    <ShowSubscribers
+      subscribersList={subscribersList}
+      addSubscriberHandler={addSubscriberHandler}
+      deleteSubscriberHandler={deleteSubscriberHandler}
+      loading={loading}  // ส่ง loading ลงไปด้วย
+    />
+  );
 }
 
 export default PhoneDirectory;
