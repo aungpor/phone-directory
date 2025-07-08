@@ -20,6 +20,7 @@ class PhoneDirectory extends Component {
       ],
     };
   }
+
   addSubscriberHandler = (newSubscriber) => {
     let subscribersList = this.state.subscribersList;
     if (subscribersList.length > 0) {
@@ -29,14 +30,24 @@ class PhoneDirectory extends Component {
     }
     subscribersList.push(newSubscriber);
     this.setState({ subscribersList: subscribersList });
-    console.log("phone directory");
-    console.log(this.state.subscribersList);
   };
+
+  deleteSubscriberHandler = (id) => {
+    const updatedList = this.state.subscribersList.filter(
+      (subscriber) => subscriber.id !== id
+    );
+    this.setState({ subscribersList: updatedList });
+  };
+
   render() {
     return (
-      // <AddSubscribers addSubscriberHandler={this.addSubscriberHandler} />;
-      <ShowSubscribers subscribersList={this.state.subscribersList} />
+      <ShowSubscribers
+        subscribersList={this.state.subscribersList}
+        addSubscriberHandler={this.addSubscriberHandler}
+        deleteSubscriberHandler={this.deleteSubscriberHandler}
+      />
     );
   }
 }
+
 export default PhoneDirectory;
