@@ -148,7 +148,7 @@ export default function ThaiPhoneDirectory() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   // Filter employees based on search term
   const filteredEmployees = employees.filter(employee => {
@@ -395,7 +395,7 @@ export default function ThaiPhoneDirectory() {
               <span>พนักงาน</span>
             </div>
 
-            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>ทำเนียบพนักงาน</h2>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>ข้อมูลพนักงาน</h2>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
               <button style={buttonStyle}>
@@ -545,26 +545,118 @@ export default function ThaiPhoneDirectory() {
                     ก่อนหน้า
                   </button>
                   
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        style={{
-                          width: '36px',
-                          height: '36px',
-                          border: '1px solid #d1d5db',
-                          background: currentPage === page ? '#10b981' : 'white',
-                          color: currentPage === page ? 'white' : '#374151',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: currentPage === page ? '600' : '400'
-                        }}
-                      >
-                        {page}
-                      </button>
-                    ))}
+                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    {(() => {
+                      const maxVisiblePages = 5;
+                      let startPage, endPage;
+
+                      if (totalPages <= maxVisiblePages) {
+                        // แสดงทุกหน้าถ้าไม่เกิน maxVisiblePages
+                        startPage = 1;
+                        endPage = totalPages;
+                      } else {
+                        // คำนวณช่วงหน้าที่จะแสดง
+                        const halfVisible = Math.floor(maxVisiblePages / 2);
+                        
+                        if (currentPage <= halfVisible) {
+                          startPage = 1;
+                          endPage = maxVisiblePages;
+                        } else if (currentPage + halfVisible >= totalPages) {
+                          startPage = totalPages - maxVisiblePages + 1;
+                          endPage = totalPages;
+                        } else {
+                          startPage = currentPage - halfVisible;
+                          endPage = currentPage + halfVisible;
+                        }
+                      }
+
+                      const pages = [];
+
+                      // หน้าแรก + "..."
+                      if (startPage > 1) {
+                        pages.push(
+                          <button
+                            key={1}
+                            onClick={() => setCurrentPage(1)}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              border: '1px solid #d1d5db',
+                              background: 'white',
+                              color: '#374151',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                            }}
+                          >
+                            1
+                          </button>
+                        );
+                        
+                        if (startPage > 2) {
+                          pages.push(
+                            <span key="start-ellipsis" style={{ padding: '0 8px', color: '#6b7280' }}>
+                              ...
+                            </span>
+                          );
+                        }
+                      }
+
+                      // หน้าในช่วงที่แสดง
+                      for (let page = startPage; page <= endPage; page++) {
+                        pages.push(
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              border: '1px solid #d1d5db',
+                              background: currentPage === page ? '#10b981' : 'white',
+                              color: currentPage === page ? 'white' : '#374151',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              fontWeight: currentPage === page ? '600' : '400'
+                            }}
+                          >
+                            {page}
+                          </button>
+                        );
+                      }
+
+                      // "..." + หน้าสุดท้าย
+                      if (endPage < totalPages) {
+                        if (endPage < totalPages - 1) {
+                          pages.push(
+                            <span key="end-ellipsis" style={{ padding: '0 8px', color: '#6b7280' }}>
+                              ...
+                            </span>
+                          );
+                        }
+                        
+                        pages.push(
+                          <button
+                            key={totalPages}
+                            onClick={() => setCurrentPage(totalPages)}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              border: '1px solid #d1d5db',
+                              background: 'white',
+                              color: '#374151',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                            }}
+                          >
+                            {totalPages}
+                          </button>
+                        );
+                      }
+
+                      return pages;
+                    })()}
                   </div>
                   
                   <button
