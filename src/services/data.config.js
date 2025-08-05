@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { writeBatch, collection, doc } from 'firebase/firestore';
+import { writeBatch, collection, doc, getDocs } from 'firebase/firestore';
 
 export const uploadToFirebase = async (employeeData) => {
   const BATCH_SIZE = 500;
@@ -22,3 +22,23 @@ export const uploadToFirebase = async (employeeData) => {
     return { success: false, message: 'ไม่สามารถอัปโหลดไปยัง Firebase ได้: ' + error.message };
   }
 };
+
+// ดึงข้อมูลทั้งหมดจาก collection "employees"
+export const getAllEmployees = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'employees'));
+    const employees = [];
+
+    querySnapshot.forEach((doc) => {
+      employees.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    return { success: true, data: employees };
+  } catch (error) {
+    return { success: false, message: 'ไม่สามารถดึงข้อมูลจาก Firebase ได้: ' + error.message };
+  }
+};
+
