@@ -80,134 +80,139 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   }, [searchTerm]);
 
   const handleCSVUpload = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-  setIsUploading(true);
-  setUploadStatus("กำลังแปลงไฟล์ CSV...");
+    setIsUploading(true);
+    setUploadStatus("กำลังแปลงไฟล์ CSV...");
 
-  Papa.parse(file, {
-    header: false, // ✅ เปลี่ยนเป็น false เพื่อให้ได้ array ของ arrays
-    skipEmptyLines: true,
-    dynamicTyping: true,
-    complete: async (results) => {
-      try {
-        setUploadStatus("กำลังประมวลผลข้อมูลพนักงาน...");
+    Papa.parse(file, {
+      header: false, // ✅ เปลี่ยนเป็น false เพื่อให้ได้ array ของ arrays
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      complete: async (results) => {
+        try {
+          setUploadStatus("กำลังประมวลผลข้อมูลพนักงาน...");
 
-        // ✅ กรองแถวที่ไม่ใช่ข้อมูลพนักงาน
-        const filteredData = results.data.filter((row, index) => {
-          // ข้ามแถวแรกที่มีข้อมูลการติดต่อ
-          if (
-            index === 0 &&
-            row[0] &&
-            row[0].toString().includes("อัพเดทเบอร์โทรศัพท์")
-          ) {
-            return false;
-          }
+          // ✅ กรองแถวที่ไม่ใช่ข้อมูลพนักงาน
+          const filteredData = results.data.filter((row, index) => {
+            // ข้ามแถวแรกที่มีข้อมูลการติดต่อ
+            if (
+              index === 0 &&
+              row[0] &&
+              row[0].toString().includes("อัพเดทเบอร์โทรศัพท์")
+            ) {
+              return false;
+            }
 
-          // ข้ามแถวที่เป็น header หรือแถวว่าง
-          if (
-            index === 1 &&
-            row[0] &&
-            row[0].toString().includes("ชื่อ-นามสกุล")
-          ) {
-            return false;
-          }
+            // ข้ามแถวที่เป็น header หรือแถวว่าง
+            if (
+              index === 1 &&
+              row[0] &&
+              row[0].toString().includes("ชื่อ-นามสกุล")
+            ) {
+              return false;
+            }
 
-          // เก็บเฉพาะแถวที่มีข้อมูลพนักงาน (มีชื่อในคอลัมน์แรก)
-          return row[0] && row[0].toString().trim() !== "";
-        });
-
-        // ✅ แปลง array เป็น object โดยใช้ header ที่กำหนดเอง
-        const headers = [
-          "thaiName", // ชื่อ-นามสกุล (ไทย)
-          "nickname", // ชื่อเล่น
-          "level", // ชั้น
-          "extension", // เบอร์โทรศัพท์ภายใน
-          "departmentPhone", // เบอร์ส่วนงาน
-          "englishName", // ชื่อ-นามสกุล (อังกฤษ)
-          "position", // ชื่อตำแหน่ง
-          "jobType", // ลักษณะงาน
-          "department", // ชื่อหน่วยงาน
-          "email", // ชื่ออีเมล์
-          "employeeGroup", // กลุ่มพนักงาน
-        ];
-
-        const processedEmployees = filteredData.map((row, index) => {
-          const employee = {};
-
-          // แปลง array เป็น object
-          headers.forEach((header, i) => {
-            employee[header] = (row[i] || "").toString().trim();
+            // เก็บเฉพาะแถวที่มีข้อมูลพนักงาน (มีชื่อในคอลัมน์แรก)
+            return row[0] && row[0].toString().trim() !== "";
           });
 
-          return {
-            id: employees.length + index + 1,
-            thaiName: employee.thaiName,
-            nickname: employee.nickname,
-            level: employee.level,
-            extension: employee.extension,
-            departmentPhone: employee.departmentPhone,
-            englishName: employee.englishName,
-            position: employee.position,
-            jobType: employee.jobType,
-            department: employee.department,
-            email: employee.email,
-            employeeGroup: employee.employeeGroup || "พนักงานประจำ",
-            status: "ปฏิบัติงาน",
-            initials:
-              employee.englishName
-                .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
-                .split(" ")
-                .map((n) => n[0] || "")
-                .join("")
-                .toUpperCase() || "N/A",
-          };
-        });
+          // ✅ แปลง array เป็น object โดยใช้ header ที่กำหนดเอง
+          const headers = [
+            "thaiName", // ชื่อ-นามสกุล (ไทย)
+            "nickname", // ชื่อเล่น
+            "level", // ชั้น
+            "extension", // เบอร์โทรศัพท์ภายใน
+            "departmentPhone", // เบอร์ส่วนงาน
+            "englishName", // ชื่อ-นามสกุล (อังกฤษ)
+            "position", // ชื่อตำแหน่ง
+            "jobType", // ลักษณะงาน
+            "department", // ชื่อหน่วยงาน
+            "email", // ชื่ออีเมล์
+            "employeeGroup", // กลุ่มพนักงาน
+          ];
 
-        console.log("Filtered data:", filteredData);
-        console.log("Processed employees:", processedEmployees);
+          const processedEmployees = filteredData.map((row, index) => {
+            const employee = {};
 
-        // ✅ Firebase upload code
-        setUploadStatus("⌛ กำลังอัพเดตข้อมูลเก่า...");
-        const deleteResult = await deleteAllEmployees();
-        if (!deleteResult.success) {
-          setUploadStatus("❌ อัพเดตข้อมูลเก่าล้มเหลว: " + deleteResult.message);
-          setIsUploading(false);
-          return;
+            // แปลง array เป็น object
+            headers.forEach((header, i) => {
+              employee[header] = (row[i] || "").toString().trim();
+            });
+
+            return {
+              id: employees.length + index + 1,
+              thaiName: employee.thaiName,
+              nickname: employee.nickname,
+              level: employee.level,
+              extension: employee.extension,
+              departmentPhone: employee.departmentPhone,
+              englishName: employee.englishName,
+              position: employee.position,
+              jobType: employee.jobType,
+              department: employee.department,
+              email: employee.email,
+              employeeGroup: employee.employeeGroup || "พนักงานประจำ",
+              status: "ปฏิบัติงาน",
+              initials:
+                employee.englishName
+                  .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
+                  .split(" ")
+                  .map((n) => n[0] || "")
+                  .join("")
+                  .toUpperCase() || "N/A",
+            };
+          });
+
+          console.log("Filtered data:", filteredData);
+          console.log("Processed employees:", processedEmployees);
+
+          // ✅ Firebase upload code
+          setUploadStatus("⌛ กำลังอัพเดตข้อมูลเก่า...");
+          const deleteResult = await deleteAllEmployees();
+          if (!deleteResult.success) {
+            setUploadStatus(
+              "❌ อัพเดตข้อมูลเก่าล้มเหลว: " + deleteResult.message
+            );
+            setIsUploading(false);
+            return;
+          }
+
+          setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
+          const result = await uploadToFirebase(processedEmployees);
+
+          if (result.success) {
+            setEmployees(processedEmployees);
+            setUploadStatus(
+              "✅ อัปโหลดข้อมูลพนักงาน " +
+                processedEmployees.length +
+                " คน ไปยัง Firebase สำเร็จ!"
+            );
+          } else {
+            setUploadStatus("❌ " + result.message);
+          }
+        } catch (error) {
+          setUploadStatus(
+            "❌ เกิดข้อผิดพลาดในการประมวลผลไฟล์: " + error.message
+          );
         }
 
-        setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
-        const result = await uploadToFirebase(processedEmployees);
+        setIsUploading(false);
+        setTimeout(() => {
+          setUploadStatus("");
+          setShowUploadModal(false);
+        }, 3000);
+      },
+      error: (error) => {
+        setUploadStatus("❌ เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: " + error.message);
+        setIsUploading(false);
+      },
+    });
 
-        if (result.success) {
-          setEmployees(processedEmployees);
-          setUploadStatus("✅ อัปโหลดข้อมูลพนักงาน " + processedEmployees.length + " คน ไปยัง Firebase สำเร็จ!");
-        } else {
-          setUploadStatus("❌ " + result.message);
-        }
-
-      } catch (error) {
-        setUploadStatus(
-          "❌ เกิดข้อผิดพลาดในการประมวลผลไฟล์: " + error.message
-        );
-      }
-
-      setIsUploading(false);
-      setTimeout(() => {
-        setUploadStatus("");
-        setShowUploadModal(false);
-      }, 3000);
-    },
-    error: (error) => {
-      setUploadStatus("❌ เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: " + error.message);
-      setIsUploading(false);
-    },
-  });
-
-  // รีเซ็ต input
-  event.target.value = "";
-};
+    // รีเซ็ต input
+    event.target.value = "";
+  };
 
   const downloadSampleCSV = () => {
     const sampleData = [
@@ -319,7 +324,8 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   };
 
   const thStyle = {
-    background: "linear-gradient(135deg, #00ab4e 0%, #008a3e 100%)",
+    background: "#00ab4e",
+    padding: "12px 16px",
     color: "white",
     padding: "16px 20px",
     textAlign: "left",
@@ -417,45 +423,45 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
               }}
             >
               <button
-                              style={primaryButtonStyle}
-                              onClick={() => setShowUploadModal(true)}
-                              onMouseEnter={(e) => {
-                                e.target.style.background = "#008a3e";
-                                e.target.style.transform = "translateY(-1px)";
-                                e.target.style.boxShadow = "0 4px 12px rgba(0, 171, 78, 0.3)";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.target.style.background = "#00ab4e";
-                                e.target.style.transform = "translateY(0)";
-                                e.target.style.boxShadow = "none";
-                              }}
-                            >
-                              <Upload size={16} />
-                              อัปโหลด CSV
-                            </button>
-                            <button
-                              style={secondaryButtonStyle}
-                              onClick={downloadSampleCSV}
-                              onMouseEnter={(e) => {
-                                e.target.style.background = "#00ab4e";
-                                e.target.style.color = "white";
-                                e.target.style.transform = "translateY(-1px)";
-                                e.target.style.boxShadow = "0 4px 12px rgba(0, 171, 78, 0.3)";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.target.style.background = "white";
-                                e.target.style.color = "#00ab4e";
-                                e.target.style.transform = "translateY(0)";
-                                e.target.style.boxShadow = "none";
-                              }}
-                            >
-                              <Download size={16} />
-                              ตัวอย่าง CSV
-                            </button>
+                style={primaryButtonStyle}
+                onClick={() => setShowUploadModal(true)}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#008a3e";
+                  e.target.style.transform = "translateY(-1px)";
+                  e.target.style.boxShadow = "0 4px 12px rgba(0, 171, 78, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "#00ab4e";
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "none";
+                }}
+              >
+                <Upload size={16} />
+                อัปโหลด CSV
+              </button>
+              <button
+                style={secondaryButtonStyle}
+                onClick={downloadSampleCSV}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#00ab4e";
+                  e.target.style.color = "white";
+                  e.target.style.transform = "translateY(-1px)";
+                  e.target.style.boxShadow = "0 4px 12px rgba(0, 171, 78, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "white";
+                  e.target.style.color = "#00ab4e";
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "none";
+                }}
+              >
+                <Download size={16} />
+                ตัวอย่าง CSV
+              </button>
             </div>
 
             {/* Search */}
-            <div style={{ marginBottom: "24px" }}>
+            <div style={{ marginBottom: "10px" }}>
               <div
                 style={{
                   position: "relative",
@@ -466,13 +472,13 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                 <Search
                   style={{
                     position: "absolute",
-                    left: "12px",
+                    left: "16px",
                     top: "50%",
                     transform: "translateY(-50%)",
-                    color: "#9ca3af",
-                    pointerEvents: "none", // ให้คลิกทะลุได้
+                    color: "#00ab4e",
+                    pointerEvents: "none",
                   }}
-                  size={16}
+                  size={18}
                 />
                 <input
                   type="text"
@@ -481,11 +487,20 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{
                     ...inputStyle,
-                    paddingLeft: "40px",
-                    paddingRight: "40px", // ✅ กัน input ทับปุ่มกากบาท
+                    paddingLeft: "48px",
+                    paddingRight: "48px",
                     width: "100%",
                     fontSize: "14px",
-                    boxSizing: "border-box", // ✅ ให้ padding ไม่บวกเกินความกว้าง
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#00ab4e";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px rgba(0, 171, 78, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb";
+                    e.target.style.boxShadow = "none";
                   }}
                 />
                 {searchTerm && (
@@ -493,17 +508,20 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                     onClick={() => setSearchTerm("")}
                     style={{
                       position: "absolute",
-                      right: "12px",
+                      right: "16px",
                       top: "50%",
                       transform: "translateY(-50%)",
                       background: "none",
                       border: "none",
                       color: "#9ca3af",
                       cursor: "pointer",
-                      fontSize: "18px",
-                      padding: 0, // ✅ ป้องกันปุ่มล้น
+                      fontSize: "20px",
+                      padding: 0,
                       lineHeight: 1,
+                      transition: "color 0.2s ease",
                     }}
+                    onMouseEnter={(e) => (e.target.style.color = "#00ab4e")}
+                    onMouseLeave={(e) => (e.target.style.color = "#9ca3af")}
                   >
                     ×
                   </button>
@@ -511,9 +529,17 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
               </div>
 
               <div
-                style={{ marginTop: "8px", fontSize: "14px", color: "#6b7280" }}
+                style={{
+                  marginTop: "12px",
+                  fontSize: "14px",
+                  padding: "0px 12px",
+                }}
               >
-                พบพนักงาน {filteredEmployees.length} คน
+                พบพนักงาน{" "}
+                <span style={{ color: "#00ab4e", fontWeight: "600" }}>
+                  {filteredEmployees.length}
+                </span>{" "}
+                คน
                 {searchTerm && ` สำหรับ "${searchTerm}"`}
               </div>
             </div>
@@ -523,23 +549,25 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
               <table style={tableStyle}>
                 <thead>
                   <tr>
-                    <th style={thStyle}>ชื่อ-นามสกุล</th>
-                    <th style={thStyle}>ตำแหน่ง/ฝ่าย</th>
-                    <th style={thStyle}>เบอร์ส่วนงาน</th>
-                    <th style={thStyle}>อีเมล</th>
+                    <th style={{ ...thStyle, width: "250px" }}>ชื่อ-นามสกุล</th>
+                    <th style={{ ...thStyle, width: "200px" }}>ตำแหน่ง/ฝ่าย</th>
+                    <th style={{ ...thStyle, width: "100px" }}>เบอร์ส่วนงาน</th>
+                    <th style={{ ...thStyle, width: "200px" }}>อีเมล</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {currentEmployees.map((employee) => (
                     <tr
                       key={employee.id}
-                      style={{ 
+                      style={{
                         cursor: "pointer",
-                        transition: "all 0.2s ease"
+                        transition: "all 0.2s ease",
                       }}
                       onClick={() => handleEmployeeClick(employee)}
                       onMouseEnter={(e) => {
-                        e.target.closest("tr").style.background = "rgba(0, 171, 78, 0.05)";
+                        e.target.closest("tr").style.background =
+                          "rgba(0, 171, 78, 0.05)";
                         e.target.closest("tr").style.transform = "scale(1.001)";
                       }}
                       onMouseLeave={(e) => {
@@ -554,10 +582,10 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                           </div>
                           <div style={{ marginLeft: "16px" }}>
                             <div
-                              style={{ 
-                                fontSize: "15px", 
+                              style={{
+                                fontSize: "15px",
                                 fontWeight: "600",
-                                color: "#1f2937"
+                                color: "#1f2937",
                               }}
                             >
                               {employee.thaiName || "ไม่ระบุชื่อ"}
@@ -571,34 +599,42 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                       </td>
                       <td style={tdStyle}>
                         <div>
-                          <div style={{ 
-                            fontSize: "14px", 
-                            fontWeight: "500",
-                            color: "#1f2937"
-                          }}>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "500",
+                              color: "#1f2937",
+                            }}
+                          >
                             {employee.position || "ไม่ระบุตำแหน่ง"}
                           </div>
-                          <div style={{ 
-                            fontSize: "13px", 
-                            color: "#00ab4e",
-                            fontWeight: "500"
-                          }}>
+                          <div
+                            style={{
+                              fontSize: "13px",
+                              color: "#00ab4e",
+                              fontWeight: "500",
+                            }}
+                          >
                             {employee.department || "ไม่ระบุฝ่าย"}
                           </div>
                         </div>
                       </td>
                       <td style={tdStyle}>
-                        <span style={{
-                          color: "#1f2937",
-                          fontWeight: "500"
-                        }}>
+                        <span
+                          style={{
+                            color: "#1f2937",
+                            fontWeight: "500",
+                          }}
+                        >
                           {employee.departmentPhone || "-"}
                         </span>
                       </td>
                       <td style={tdStyle}>
-                        <span style={{
-                          color: "#1f2937"
-                        }}>
+                        <span
+                          style={{
+                            color: "#1f2937",
+                          }}
+                        >
                           {employee.email}
                         </span>
                       </td>
@@ -615,14 +651,16 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginTop: "24px",
-                  padding: "16px 0",
+                  marginTop: "28px",
+                  padding: "20px 0",
                 }}
               >
                 <div style={{ fontSize: "14px", color: "#6b7280" }}>
                   แสดง {startIndex + 1} ถึง{" "}
                   {Math.min(endIndex, filteredEmployees.length)} จาก{" "}
-                  {filteredEmployees.length} คน
+                  <span style={{color: "#00ab4e", fontWeight: "600"}}>
+                    {filteredEmployees.length}
+                  </span> คน
                 </div>
 
                 <div
@@ -634,13 +672,29 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                     }
                     disabled={currentPage === 1}
                     style={{
-                      padding: "8px 12px",
-                      border: "1px solid #d1d5db",
+                      padding: "10px 16px",
+                      border: "2px solid #e1e5e9",
                       background: currentPage === 1 ? "#f9fafb" : "white",
-                      color: currentPage === 1 ? "#9ca3af" : "#374151",
-                      borderRadius: "6px",
+                      color: currentPage === 1 ? "#9ca3af" : "#00ab4e",
+                      borderRadius: "8px",
                       cursor: currentPage === 1 ? "not-allowed" : "pointer",
                       fontSize: "14px",
+                      fontWeight: "500",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (currentPage !== 1) {
+                        e.target.style.background = "#00ab4e";
+                        e.target.style.color = "white";
+                        e.target.style.borderColor = "#00ab4e";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (currentPage !== 1) {
+                        e.target.style.background = "white";
+                        e.target.style.color = "#00ab4e";
+                        e.target.style.borderColor = "#e1e5e9";
+                      }
                     }}
                   >
                     ก่อนหน้า
@@ -649,7 +703,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                   <div
                     style={{
                       display: "flex",
-                      gap: "4px",
+                      gap: "6px",
                       alignItems: "center",
                     }}
                   >
@@ -658,11 +712,9 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                       let startPage, endPage;
 
                       if (totalPages <= maxVisiblePages) {
-                        // แสดงทุกหน้าถ้าไม่เกิน maxVisiblePages
                         startPage = 1;
                         endPage = totalPages;
                       } else {
-                        // คำนวณช่วงหน้าที่จะแสดง
                         const halfVisible = Math.floor(maxVisiblePages / 2);
 
                         if (currentPage <= halfVisible) {
@@ -679,21 +731,32 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
 
                       const pages = [];
 
-                      // หน้าแรก + "..."
                       if (startPage > 1) {
                         pages.push(
                           <button
                             key={1}
                             onClick={() => setCurrentPage(1)}
                             style={{
-                              width: "36px",
-                              height: "36px",
-                              border: "1px solid #d1d5db",
+                              width: "40px",
+                              height: "40px",
+                              border: "2px solid #e1e5e9",
                               background: "white",
-                              color: "#374151",
-                              borderRadius: "6px",
+                              color: "#00ab4e",
+                              borderRadius: "8px",
                               cursor: "pointer",
                               fontSize: "14px",
+                              fontWeight: "500",
+                              transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = "#00ab4e";
+                              e.target.style.color = "white";
+                              e.target.style.borderColor = "#00ab4e";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = "white";
+                              e.target.style.color = "#00ab4e";
+                              e.target.style.borderColor = "#e1e5e9";
                             }}
                           >
                             1
@@ -712,23 +775,36 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                         }
                       }
 
-                      // หน้าในช่วงที่แสดง
                       for (let page = startPage; page <= endPage; page++) {
                         pages.push(
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
                             style={{
-                              width: "36px",
-                              height: "36px",
-                              border: "1px solid #d1d5db",
-                              background:
-                                currentPage === page ? "#10b981" : "white",
-                              color: currentPage === page ? "white" : "#374151",
-                              borderRadius: "6px",
+                              width: "40px",
+                              height: "40px",
+                              border: `2px solid ${currentPage === page ? "#00ab4e" : "#e1e5e9"}`,
+                              background: currentPage === page ? "#00ab4e" : "white",
+                              color: currentPage === page ? "white" : "#00ab4e",
+                              borderRadius: "8px",
                               cursor: "pointer",
                               fontSize: "14px",
-                              fontWeight: currentPage === page ? "600" : "400",
+                              fontWeight: currentPage === page ? "600" : "500",
+                              transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (currentPage !== page) {
+                                e.target.style.background = "#00ab4e";
+                                e.target.style.color = "white";
+                                e.target.style.borderColor = "#00ab4e";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (currentPage !== page) {
+                                e.target.style.background = "white";
+                                e.target.style.color = "#00ab4e";
+                                e.target.style.borderColor = "#e1e5e9";
+                              }
                             }}
                           >
                             {page}
@@ -736,7 +812,6 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                         );
                       }
 
-                      // "..." + หน้าสุดท้าย
                       if (endPage < totalPages) {
                         if (endPage < totalPages - 1) {
                           pages.push(
@@ -754,14 +829,26 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                             key={totalPages}
                             onClick={() => setCurrentPage(totalPages)}
                             style={{
-                              width: "36px",
-                              height: "36px",
-                              border: "1px solid #d1d5db",
+                              width: "40px",
+                              height: "40px",
+                              border: "2px solid #e1e5e9",
                               background: "white",
-                              color: "#374151",
-                              borderRadius: "6px",
+                              color: "#00ab4e",
+                              borderRadius: "8px",
                               cursor: "pointer",
                               fontSize: "14px",
+                              fontWeight: "500",
+                              transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = "#00ab4e";
+                              e.target.style.color = "white";
+                              e.target.style.borderColor = "#00ab4e";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = "white";
+                              e.target.style.color = "#00ab4e";
+                              e.target.style.borderColor = "#e1e5e9";
                             }}
                           >
                             {totalPages}
@@ -779,15 +866,29 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                     }
                     disabled={currentPage === totalPages}
                     style={{
-                      padding: "8px 12px",
-                      border: "1px solid #d1d5db",
-                      background:
-                        currentPage === totalPages ? "#f9fafb" : "white",
-                      color: currentPage === totalPages ? "#9ca3af" : "#374151",
-                      borderRadius: "6px",
-                      cursor:
-                        currentPage === totalPages ? "not-allowed" : "pointer",
+                      padding: "10px 16px",
+                      border: "2px solid #e1e5e9",
+                      background: currentPage === totalPages ? "#f9fafb" : "white",
+                      color: currentPage === totalPages ? "#9ca3af" : "#00ab4e",
+                      borderRadius: "8px",
+                      cursor: currentPage === totalPages ? "not-allowed" : "pointer",
                       fontSize: "14px",
+                      fontWeight: "500",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (currentPage !== totalPages) {
+                        e.target.style.background = "#00ab4e";
+                        e.target.style.color = "white";
+                        e.target.style.borderColor = "#00ab4e";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (currentPage !== totalPages) {
+                        e.target.style.background = "white";
+                        e.target.style.color = "#00ab4e";
+                        e.target.style.borderColor = "#e1e5e9";
+                      }
                     }}
                   >
                     ถัดไป
@@ -800,22 +901,8 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
           {/* Employee Profile Card */}
           <div style={cardStyle}>
             {/* Profile Header */}
-            <div style={{ textAlign: "center", marginBottom: "24px" }}>
-              <div
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  background: "#10b981",
-                  color: "white",
-                  borderRadius: "50%",
-                  margin: "0 auto 16px auto",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  fontWeight: "500",
-                }}
-              >
+            <div style={{ textAlign: "center", marginBottom: "28px" }}>
+              <div style={largeAvatarStyle}>
                 {(selectedEmployee.englishName || "Unknown")
                   .split(" ")
                   .map((n) => n[0] || "")
@@ -823,18 +910,20 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
               </div>
               <h3
                 style={{
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  margin: "0 0 4px 0",
+                  fontSize: "22px",
+                  fontWeight: "700",
+                  margin: "0 0 8px 0",
+                  color: "#1f2937",
                 }}
               >
                 {selectedEmployee.thaiName}
               </h3>
               <p
                 style={{
-                  fontSize: "14px",
-                  color: "#6b7280",
+                  fontSize: "16px",
+                  color: "#00ab4e",
                   margin: "0 0 4px 0",
+                  fontWeight: "500",
                 }}
               >
                 {selectedEmployee.nickname && `(${selectedEmployee.nickname})`}
@@ -843,7 +932,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                 style={{
                   fontSize: "14px",
                   color: "#6b7280",
-                  margin: "0 0 8px 0",
+                  margin: "0 0 12px 0",
                 }}
               >
                 {selectedEmployee.englishName}
@@ -853,22 +942,27 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             <hr
               style={{
                 border: "none",
-                borderTop: "1px solid #e5e7eb",
-                margin: "24px 0",
+                borderTop: "2px solid rgba(0, 171, 78, 0.1)",
+                margin: "28px 0",
               }}
             />
 
             {/* Contact Information */}
             <div style={{ marginBottom: "24px" }}>
               <h4
-                style={{
-                  fontWeight: "600",
-                  marginBottom: "12px",
-                  fontSize: "16px",
-                }}
-              >
-                ข้อมูลติดต่อ
-              </h4>
+                              style={{
+                                fontWeight: "700",
+                                marginBottom: "16px",
+                                fontSize: "18px",
+                                color: "#00ab4e",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <Phone size={18} />
+                              ข้อมูลติดต่อ
+                            </h4>
               <div style={{ fontSize: "14px", lineHeight: "1.6" }}>
                 <div style={{ marginBottom: "8px" }}>
                   <span style={{ fontWeight: "500" }}>เบอร์ภายใน:</span>{" "}
@@ -896,14 +990,19 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             {/* Work Information */}
             <div style={{ marginBottom: "24px" }}>
               <h4
-                style={{
-                  fontWeight: "600",
-                  marginBottom: "12px",
-                  fontSize: "16px",
-                }}
-              >
-                ข้อมูลการทำงาน
-              </h4>
+                              style={{
+                                fontWeight: "700",
+                                marginBottom: "16px",
+                                fontSize: "18px",
+                                color: "#00ab4e",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <Users size={18} />
+                              ข้อมูลการทำงาน
+                            </h4>
               <div style={{ fontSize: "14px", lineHeight: "1.6" }}>
                 <div style={{ marginBottom: "8px" }}>
                   <span style={{ fontWeight: "500" }}>ตำแหน่ง:</span>{" "}
