@@ -5,6 +5,7 @@ import Layout from './pages/Layout'
 import Main from './components/Auth/Main'
 import HomePage from './pages/HomePage'
 import TestPage from './pages/TestPage'
+import NewHomePage from './pages/NewHomePage';
 
 
 export default function App() {
@@ -15,7 +16,7 @@ export default function App() {
         <Routes>
           <Route path="/">
             <Route index element={<HomePage />} />
-            <Route path="test" element={<TestPage />} />
+            <Route path="test" element={<NewHomePage/>} />
           </Route>
         </Routes>
       </BrowserRouter>
