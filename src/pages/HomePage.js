@@ -465,9 +465,8 @@ export default function ThaiPhoneDirectory() {
                   <tr>
                     <th style={thStyle}>ชื่อ-นามสกุล</th>
                     <th style={thStyle}>ตำแหน่ง/ฝ่าย</th>
-                    <th style={thStyle}>เบอร์ภายใน</th>
-                    <th style={thStyle}>สถานะ</th>
-                    <th style={thStyle}></th>
+                    <th style={thStyle}>เบอร์ส่วนงาน</th>
+                    <th style={thStyle}>อีเมล</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -498,17 +497,8 @@ export default function ThaiPhoneDirectory() {
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>{employee.department || 'ไม่ระบุฝ่าย'}</div>
                         </div>
                       </td>
-                      <td style={tdStyle}>{employee.extension || '-'}</td>
-                      <td style={tdStyle}>
-                        <span style={statusBadgeStyle(employee.status)}>
-                          {employee.status}
-                        </span>
-                      </td>
-                      <td style={tdStyle}>
-                        <button style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                          <Settings size={16} color="#9ca3af" />
-                        </button>
-                      </td>
+                      <td style={tdStyle}>{employee.departmentPhone || '-'}</td>
+                      <td style={tdStyle}>{employee.email}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -703,9 +693,7 @@ export default function ThaiPhoneDirectory() {
                 {selectedEmployee.nickname && `(${selectedEmployee.nickname})`}
               </p>
               <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 8px 0' }}>{selectedEmployee.englishName}</p>
-              <span style={statusBadgeStyle(selectedEmployee.status)}>
-                {selectedEmployee.status}
-              </span>
+
             </div>
 
             <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '24px 0' }} />
@@ -723,51 +711,6 @@ export default function ThaiPhoneDirectory() {
                 <div style={{ marginBottom: '8px' }}>
                   <span style={{ fontWeight: '500' }}>อีเมล:</span> {selectedEmployee.email}
                 </div>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <button style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  background: '#0077b5',
-                  color: 'white',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <Mail size={14} />
-                </button>
-                <button style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  background: '#25d366',
-                  color: 'white',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <Phone size={14} />
-                </button>
-                <button style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  background: '#1877f2',
-                  color: 'white',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <MessageCircle size={14} />
-                </button>
               </div>
             </div>
 
@@ -795,16 +738,7 @@ export default function ThaiPhoneDirectory() {
               </div>
             </div>
 
-            <button style={{ 
-              color: '#10b981', 
-              background: 'none', 
-              border: 'none', 
-              cursor: 'pointer', 
-              fontSize: '14px',
-              textDecoration: 'underline'
-            }}>
-              ดูรายละเอียดเพิ่มเติมของ {(selectedEmployee.thaiName || 'พนักงาน').split(' ')[1] || selectedEmployee.nickname || 'พนักงาน'}
-            </button>
+
           </div>
         </div>
 
