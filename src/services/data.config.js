@@ -1,32 +1,24 @@
-// src/services/example.ts
-import { collection, getDocs, addDoc, deleteDoc, doc, orderBy, query, serverTimestamp  } from "firebase/firestore";
-import { db } from "../firebase"; // ✅ ปรับ path ให้ถูก
+import { db } from '../firebase';
+import { writeBatch, collection, doc } from 'firebase/firestore';
 
-const COLLECTION_NAME = "phoneNumber";
+export const uploadToFirebase = async (employeeData) => {
+  const BATCH_SIZE = 500;
+  try {
+    for (let i = 0; i < employeeData.length; i += BATCH_SIZE) {
+      const batch = writeBatch(db);
+      const chunk = employeeData.slice(i, i + BATCH_SIZE);
 
-// 🔹 ดึงข้อมูล
-export async function fetchContacts() {
-  const q = query(
-    collection(db, COLLECTION_NAME),
-    orderBy("createdAt", "desc") // 🔹 เรียงจากใหม่ไปเก่า
-  );
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-}
+      chunk.forEach((emp) => {
+        const docRef = doc(collection(db, 'employees'), emp.id.toString());
+        batch.set(docRef, emp);
+      });
 
-// 🔹 เพิ่มข้อมูลใหม่
-export async function addContact(newContact) {
-  const docRef = await addDoc(collection(db, "phoneNumber"), {
-    ...newContact,
-    createdAt: serverTimestamp(), // 🔹 ให้ Firestore ใส่เวลาปัจจุบันให้
-  });
-  return { id: docRef.id, ...newContact };
-}
+      await batch.commit();
+      console.log(`✅ อัปโหลดชุด ${i / BATCH_SIZE + 1}`);
+    }
 
-// 🔹 ลบข้อมูลตาม id
-export async function deleteContact(id) {
-  await deleteDoc(doc(db, COLLECTION_NAME, id));
-}
+    return { success: true, message: 'อัปโหลดข้อมูลไปยัง Firebase สำเร็จ' };
+  } catch (error) {
+    return { success: false, message: 'ไม่สามารถอัปโหลดไปยัง Firebase ได้: ' + error.message };
+  }
+};

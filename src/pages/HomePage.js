@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Settings, Bell, Grid3X3, Home, FileText, Calendar, Users, User, Phone, Mail, Linkedin, Facebook, Twitter, MessageCircle, Upload, Download, Loader } from 'lucide-react';
 import Papa from 'papaparse';
+import {uploadToFirebase} from '../services/data.config'
 
 // Firebase configuration (replace with your config)
 const firebaseConfig = {
@@ -176,16 +177,7 @@ export default function ThaiPhoneDirectory() {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Firebase functions (mock implementation - replace with actual Firebase SDK)
-  const uploadToFirebase = async (employeeData) => {
-    try {
-      // Mock delay for demonstration
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return { success: true, message: 'อัปโหลดข้อมูลไปยัง Firebase สำเร็จ' };
-    } catch (error) {
-      return { success: false, message: 'ไม่สามารถอัปโหลดไปยัง Firebase ได้: ' + error.message };
-    }
-  };
+
 
   const handleCSVUpload = (event) => {
     const file = event.target.files[0];
