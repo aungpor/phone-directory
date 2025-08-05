@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
-import { Search, Filter, Settings, Bell, Grid3X3, Home, FileText, Calendar, Users, User, Phone, Mail, Linkedin, Facebook, Twitter, MessageCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Settings, Bell, Grid3X3, Home, FileText, Calendar, Users, User, Phone, Mail, Linkedin, Facebook, Twitter, MessageCircle, Upload, Download, Loader } from 'lucide-react';
+import Papa from 'papaparse';
 
-export default function HomePage() {
+// Firebase configuration (replace with your config)
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
+
+export default function PhoneDirectory() {
   const [selectedEmployee, setSelectedEmployee] = useState({
     name: 'Dylan Baylidge',
     position: 'Sales Coordinator',
@@ -17,7 +28,7 @@ export default function HomePage() {
     sex: 'Male'
   });
 
-  const employees = [
+  const [employees, setEmployees] = useState([
     {
       id: 1,
       name: 'Cole Ashbury',
@@ -81,22 +92,170 @@ export default function HomePage() {
       status: 'Available',
       initials: 'MC'
     }
-  ];
+  ]);
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+
+  // Filter employees based on search term
+  const filteredEmployees = employees.filter(employee => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (employee.name || '').toLowerCase().includes(searchLower) ||
+      (employee.email || '').toLowerCase().includes(searchLower) ||
+      (employee.department || '').toLowerCase().includes(searchLower) ||
+      (employee.position || '').toLowerCase().includes(searchLower) ||
+      (employee.phone || '').includes(searchTerm)
+    );
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+  // Firebase functions (mock implementation - replace with actual Firebase SDK)
+  const uploadToFirebase = async (employeeData) => {
+    // This is a mock function - replace with actual Firebase implementation
+    try {
+      // Example Firebase implementation:
+      // const db = getFirestore();
+      // const batch = writeBatch(db);
+      // 
+      // employeeData.forEach((employee) => {
+      //   const docRef = doc(db, 'employees', employee.id.toString());
+      //   batch.set(docRef, employee);
+      // });
+      // 
+      // await batch.commit();
+      
+      // Mock delay for demonstration
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return { success: true, message: 'Data uploaded successfully to Firebase' };
+    } catch (error) {
+      return { success: false, message: 'Failed to upload to Firebase: ' + error.message };
+    }
+  };
+
+  const handleCSVUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadStatus('Parsing CSV file...');
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      complete: async (results) => {
+        try {
+          setUploadStatus('Processing employee data...');
+          
+          // Process CSV data
+          const processedEmployees = results.data.map((row, index) => ({
+            id: row.id || (employees.length + index + 1),
+            name: (row.name || row.Name || '').toString(),
+            position: (row.position || row.Position || '').toString(),
+            department: (row.department || row.Department || '').toString(),
+            phone: (row.phone || row.Phone || '').toString(),
+            status: (row.status || row.Status || 'Available').toString(),
+            initials: ((row.name || row.Name || '').toString()).split(' ').map(n => n[0] || '').join('').toUpperCase(),
+            mobile: (row.mobile || row.Mobile || '').toString(),
+            email: (row.email || row.Email || '').toString(),
+            supervisor: (row.supervisor || row.Supervisor || '').toString(),
+            location: (row.location || row.Location || '').toString(),
+            birthday: (row.birthday || row.Birthday || '').toString(),
+            city: (row.city || row.City || '').toString(),
+            sex: (row.sex || row.Sex || '').toString()
+          }));
+
+          setUploadStatus('Uploading to Firebase...');
+          
+          // Upload to Firebase
+          const result = await uploadToFirebase(processedEmployees);
+          
+          if (result.success) {
+            setEmployees(processedEmployees);
+            setUploadStatus('✅ Successfully uploaded ' + processedEmployees.length + ' employees to Firebase!');
+          } else {
+            setUploadStatus('❌ ' + result.message);
+          }
+          
+        } catch (error) {
+          setUploadStatus('❌ Error processing file: ' + error.message);
+        }
+        
+        setIsUploading(false);
+        setTimeout(() => {
+          setUploadStatus('');
+          setShowUploadModal(false);
+        }, 3000);
+      },
+      error: (error) => {
+        setUploadStatus('❌ Error parsing CSV: ' + error.message);
+        setIsUploading(false);
+      }
+    });
+
+    // Reset file input
+    event.target.value = '';
+  };
+
+  const downloadSampleCSV = () => {
+    const sampleData = [
+      {
+        id: 1,
+        name: 'John Doe',
+        position: 'Software Engineer',
+        department: 'Engineering',
+        phone: '(555) 123-4567',
+        status: 'Available',
+        mobile: '(555) 987-6543',
+        email: 'john.doe@company.com',
+        supervisor: 'Jane Smith',
+        location: 'New York',
+        birthday: 'January 15',
+        city: 'Manhattan',
+        sex: 'Male'
+      }
+    ];
+
+    const csv = Papa.unparse(sampleData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'employee_sample.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleEmployeeClick = (employee) => {
     setSelectedEmployee({
-      name: employee.name,
-      position: employee.position,
-      department: employee.department,
-      phone: employee.phone,
-      mobile: '(472) 276-0193',
-      email: employee.name.toLowerCase().replace(' ', '') + '@company.com',
-      status: employee.status,
-      supervisor: 'Christine Wyatt',
-      location: 'Atlanta',
-      birthday: 'September 29',
-      city: 'Brookhead',
-      sex: 'Male'
+      name: employee.name || 'Unknown',
+      position: employee.position || 'No position',
+      department: employee.department || 'No department',
+      phone: employee.phone || 'No phone',
+      mobile: employee.mobile || '(472) 276-0193',
+      email: employee.email || (employee.name || 'unknown').toLowerCase().replace(' ', '') + '@company.com',
+      status: employee.status || 'Available',
+      supervisor: employee.supervisor || 'Christine Wyatt',
+      location: employee.location || 'Atlanta',
+      birthday: employee.birthday || 'September 29',
+      city: employee.city || 'Brookhead',
+      sex: employee.sex || 'Male'
     });
   };
 
@@ -213,86 +372,6 @@ export default function HomePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
-      {/* Header */}
-      <header style={headerStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              background: '#3b82f6',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold'
-            }}>
-              C
-            </div>
-            <nav style={{ display: 'flex', gap: '24px' }}>
-              <a style={navLinkStyle}>
-                <Home size={16} />
-                <span>Home</span>
-              </a>
-              <a style={navLinkStyle}>
-                <FileText size={16} />
-                <span>News</span>
-              </a>
-              <a style={navLinkStyle}>
-                <Calendar size={16} />
-                <span>Events</span>
-              </a>
-              <a style={navLinkStyle}>
-                <Users size={16} />
-                <span>Departments</span>
-              </a>
-              <a style={navLinkStyle}>
-                <FileText size={16} />
-                <span>Documents</span>
-              </a>
-              <a style={activeNavLinkStyle}>
-                <User size={16} />
-                <span>Employees</span>
-              </a>
-            </nav>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ position: 'relative' }}>
-              <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} size={16} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                style={{ ...inputStyle, paddingLeft: '40px', width: '200px' }}
-              />
-            </div>
-            <button style={{ border: 'none', background: 'none', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}>
-              <Grid3X3 size={20} color="#6b7280" />
-            </button>
-            <div style={{ position: 'relative' }}>
-              <button style={{ border: 'none', background: 'none', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}>
-                <Bell size={20} color="#6b7280" />
-              </button>
-              <span style={{
-                position: 'absolute',
-                top: '-2px',
-                right: '-2px',
-                width: '20px',
-                height: '20px',
-                background: '#ef4444',
-                color: 'white',
-                fontSize: '12px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>1</span>
-            </div>
-            <div style={{ width: '32px', height: '32px', background: '#d1d5db', borderRadius: '50%' }}></div>
-          </div>
-        </div>
-      </header>
 
       <div style={{ padding: '24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
@@ -307,45 +386,65 @@ export default function HomePage() {
 
             <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>Employee Directory</h2>
 
-            <button style={{ ...buttonStyle, marginBottom: '24px' }}>
-              Add Employee
-            </button>
-
-            {/* Filters */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-              <select style={inputStyle}>
-                <option>All</option>
-                <option>Employee</option>
-                <option>Manager</option>
-              </select>
-              <select style={inputStyle}>
-                <option>All</option>
-                <option>Engineering</option>
-                <option>Sales</option>
-                <option>Marketing</option>
-              </select>
-              <select style={inputStyle}>
-                <option>All</option>
-                <option>Available</option>
-                <option>Out</option>
-              </select>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
               <button style={buttonStyle}>
-                <Filter size={16} />
-                <span>Filter</span>
+                Add Employee
+              </button>
+              <button 
+                style={{ ...buttonStyle, background: '#10b981' }}
+                onClick={() => setShowUploadModal(true)}
+              >
+                <Upload size={16} />
+                Upload CSV
+              </button>
+              <button 
+                style={{ ...buttonStyle, background: '#6366f1' }}
+                onClick={downloadSampleCSV}
+              >
+                <Download size={16} />
+                Sample CSV
               </button>
             </div>
 
-            {/* Search and Sort */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ position: 'relative' }}>
+            {/* Search */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ position: 'relative', width: '400px' }}>
                 <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} size={16} />
                 <input 
                   type="text" 
-                  placeholder="Filter by name..." 
-                  style={{ ...inputStyle, paddingLeft: '40px', width: '320px' }}
+                  placeholder="Search by name, email, department, position, or phone..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ 
+                    ...inputStyle, 
+                    paddingLeft: '40px', 
+                    width: '100%',
+                    fontSize: '14px'
+                  }}
                 />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#9ca3af',
+                      cursor: 'pointer',
+                      fontSize: '18px'
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
               </div>
-              <span style={{ fontSize: '14px', color: '#6b7280' }}>Sort by: Alphabetical A-Z</span>
+              <div style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}>
+                {filteredEmployees.length} employee(s) found
+                {searchTerm && ` for "${searchTerm}"`}
+              </div>
             </div>
 
             {/* Employee Table */}
@@ -360,7 +459,7 @@ export default function HomePage() {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((employee) => (
+                {currentEmployees.map((employee) => (
                   <tr 
                     key={employee.id} 
                     style={{ cursor: 'pointer' }}
@@ -371,16 +470,16 @@ export default function HomePage() {
                     <td style={tdStyle}>
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={avatarStyle}>
-                          {employee.initials}
+                          {employee.initials || 'N/A'}
                         </div>
                         <div style={{ marginLeft: '16px' }}>
-                          <div style={{ fontSize: '14px', fontWeight: '500' }}>{employee.name}</div>
-                          <div style={{ fontSize: '14px', color: '#6b7280' }}>{employee.position}</div>
+                          <div style={{ fontSize: '14px', fontWeight: '500' }}>{employee.name || 'Unknown'}</div>
+                          <div style={{ fontSize: '14px', color: '#6b7280' }}>{employee.position || 'No position'}</div>
                         </div>
                       </div>
                     </td>
-                    <td style={tdStyle}>{employee.department}</td>
-                    <td style={tdStyle}>{employee.phone}</td>
+                    <td style={tdStyle}>{employee.department || 'N/A'}</td>
+                    <td style={tdStyle}>{employee.phone || 'N/A'}</td>
                     <td style={tdStyle}>
                       <span style={statusBadgeStyle(employee.status)}>
                         {employee.status}
@@ -395,6 +494,77 @@ export default function HomePage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginTop: '24px',
+                padding: '16px 0'
+              }}>
+                <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredEmployees.length)} of {filteredEmployees.length} employees
+                </div>
+                
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      background: currentPage === 1 ? '#f9fafb' : 'white',
+                      color: currentPage === 1 ? '#9ca3af' : '#374151',
+                      borderRadius: '6px',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Previous
+                  </button>
+                  
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          border: '1px solid #d1d5db',
+                          background: currentPage === page ? '#40e0d0' : 'white',
+                          color: currentPage === page ? 'white' : '#374151',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: currentPage === page ? '600' : '400'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      background: currentPage === totalPages ? '#f9fafb' : 'white',
+                      color: currentPage === totalPages ? '#9ca3af' : '#374151',
+                      borderRadius: '6px',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Employee Profile Card */}
@@ -413,10 +583,10 @@ export default function HomePage() {
                 fontSize: '24px',
                 fontWeight: '500'
               }}>
-                {selectedEmployee.name.split(' ').map(n => n[0]).join('')}
+                {(selectedEmployee.name || 'Unknown').split(' ').map(n => n[0] || '').join('')}
               </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 4px 0' }}>{selectedEmployee.name}</h3>
-              <p style={{ color: '#6b7280', margin: '0 0 8px 0' }}>{selectedEmployee.position}</p>
+              <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 4px 0' }}>{selectedEmployee.name || 'Unknown'}</h3>
+              <p style={{ color: '#6b7280', margin: '0 0 8px 0' }}>{selectedEmployee.position || 'No position'}</p>
               <span style={statusBadgeStyle(selectedEmployee.status)}>
                 {selectedEmployee.status}
               </span>
@@ -499,11 +669,125 @@ export default function HomePage() {
               fontSize: '14px',
               textDecoration: 'underline'
             }}>
-              View {selectedEmployee.name.split(' ')[0]}'s Full Profile
+                              View {(selectedEmployee.name || 'Unknown').split(' ')[0] || 'Employee'}'s Full Profile
             </button>
           </div>
         </div>
+
+        {/* Upload Modal */}
+        {showUploadModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '32px',
+              width: '500px',
+              maxWidth: '90vw'
+            }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px' }}>
+                Upload Employee CSV
+              </h3>
+              
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+                  Upload a CSV file to update employee data in Firebase. The CSV should include columns like:
+                  name, position, department, phone, status, email, etc.
+                </p>
+                
+                <div style={{
+                  border: '2px dashed #d1d5db',
+                  borderRadius: '8px',
+                  padding: '32px',
+                  textAlign: 'center',
+                  background: '#f9fafb'
+                }}>
+                  <Upload size={48} color="#9ca3af" style={{ margin: '0 auto 16px' }} />
+                  <p style={{ marginBottom: '16px' }}>Drop your CSV file here or click to browse</p>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCSVUpload}
+                    style={{ display: 'none' }}
+                    id="csv-upload"
+                    disabled={isUploading}
+                  />
+                  <label 
+                    htmlFor="csv-upload" 
+                    style={{
+                      ...buttonStyle,
+                      display: 'inline-flex',
+                      cursor: isUploading ? 'not-allowed' : 'pointer',
+                      opacity: isUploading ? 0.6 : 1
+                    }}
+                  >
+                    {isUploading && <Loader size={16} style={{ animation: 'spin 1s linear infinite' }} />}
+                    {isUploading ? 'Processing...' : 'Choose File'}
+                  </label>
+                </div>
+              </div>
+
+              {uploadStatus && (
+                <div style={{
+                  padding: '12px',
+                  borderRadius: '6px',
+                  marginBottom: '16px',
+                  background: uploadStatus.includes('✅') ? '#dcfce7' : uploadStatus.includes('❌') ? '#fee2e2' : '#e0f2fe',
+                  color: uploadStatus.includes('✅') ? '#16a34a' : uploadStatus.includes('❌') ? '#dc2626' : '#0369a1',
+                  fontSize: '14px'
+                }}>
+                  {uploadStatus}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={downloadSampleCSV}
+                  style={{
+                    ...buttonStyle,
+                    background: '#6b7280'
+                  }}
+                >
+                  Download Sample
+                </button>
+                <button
+                  onClick={() => setShowUploadModal(false)}
+                  style={{
+                    background: 'white',
+                    color: '#6b7280',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    cursor: 'pointer'
+                  }}
+                  disabled={isUploading}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 }
