@@ -12,85 +12,134 @@ const firebaseConfig = {
   appId: "your-app-id"
 };
 
-export default function PhoneDirectory() {
+export default function ThaiPhoneDirectory() {
   const [selectedEmployee, setSelectedEmployee] = useState({
-    name: 'Dylan Baylidge',
-    position: 'Sales Coordinator',
-    department: 'Sales',
-    phone: '(404) 192-9945, Ext: 194',
-    mobile: '(472) 276-0193',
-    email: 'dbaylidge@company.com',
-    status: 'Available',
-    supervisor: 'Christine Wyatt',
-    location: 'Atlanta',
-    birthday: 'September 29',
-    city: 'Brookhead',
-    sex: 'Male'
+    thaiName: 'นายสมชาย ใจดี',
+    nickname: 'ชาย',
+    level: 'ระดับ 5',
+    extension: '1234',
+    departmentPhone: '02-123-4567',
+    englishName: 'Somchai Jaidee',
+    position: 'นักวิเคราะห์ระบบ',
+    jobType: 'งานพัฒนาระบบ',
+    department: 'ฝ่ายเทคโนโลยีสารสนเทศ',
+    email: 'somchai.j@company.co.th',
+    employeeGroup: 'พนักงานประจำ',
+    status: 'ปฏิบัติงาน'
   });
 
   const [employees, setEmployees] = useState([
     {
       id: 1,
-      name: 'Cole Ashbury',
-      position: 'Software Engineer',
-      department: 'Engineering',
-      phone: '(728) 521-4294',
-      status: 'Available',
-      initials: 'CA'
+      thaiName: 'นายสมชาย ใจดี',
+      nickname: 'ชาย',
+      level: 'ระดับ 5',
+      extension: '1234',
+      departmentPhone: '02-123-4567',
+      englishName: 'Somchai Jaidee',
+      position: 'นักวิเคราะห์ระบบ',
+      jobType: 'งานพัฒนาระบบ',
+      department: 'ฝ่ายเทคโนโลยีสารสนเทศ',
+      email: 'somchai.j@company.co.th',
+      employeeGroup: 'พนักงานประจำ',
+      status: 'ปฏิบัติงาน',
+      initials: 'SJ'
     },
     {
       id: 2,
-      name: 'Joshua Baker',
-      position: 'Accountant',
-      department: 'Accounting',
-      phone: '(404) 153-5520',
-      status: 'Out',
-      initials: 'JB'
+      thaiName: 'นางสาวสุดา มีสุข',
+      nickname: 'ดา',
+      level: 'ระดับ 4',
+      extension: '2345',
+      departmentPhone: '02-234-5678',
+      englishName: 'Suda Meesuk',
+      position: 'เจ้าหน้าที่บัญชี',
+      jobType: 'งานบัญชีการเงิน',
+      department: 'ฝ่ายการเงินและบัญชี',
+      email: 'suda.m@company.co.th',
+      employeeGroup: 'พนักงานประจำ',
+      status: 'ลาป่วย',
+      initials: 'SM'
     },
     {
       id: 3,
-      name: 'Dylan Baylidge',
-      position: 'Sales Coordinator',  
-      department: 'Sales',
-      phone: '(404) 192-9945',
-      status: 'Available',
-      initials: 'DB'
+      thaiName: 'นายวิชัย เก่งดี',
+      nickname: 'วิช',
+      level: 'ระดับ 6',
+      extension: '3456',
+      departmentPhone: '02-345-6789',
+      englishName: 'Wichai Kaengdee',
+      position: 'หัวหน้างานขาย',
+      jobType: 'งานขายและการตลาด',
+      department: 'ฝ่ายการตลาด',
+      email: 'wichai.k@company.co.th',
+      employeeGroup: 'พนักงานประจำ',
+      status: 'ปฏิบัติงาน',
+      initials: 'WK'
     },
     {
       id: 4,
-      name: 'Lisa Bradford',
-      position: 'Communications Manager',
-      department: 'Marketing',
-      phone: '(330) 923-4411',
-      status: 'Available',
-      initials: 'LB'
+      thaiName: 'นางมาลี สวยงาม',
+      nickname: 'มาลี',
+      level: 'ระดับ 7',
+      extension: '4567',
+      departmentPhone: '02-456-7890',
+      englishName: 'Malee Suayngam',
+      position: 'ผู้จัดการฝ่ายบุคคล',
+      jobType: 'งานบริหารทรัพยากรบุคคล',
+      department: 'ฝ่ายทรัพยากรบุคคล',
+      email: 'malee.s@company.co.th',
+      employeeGroup: 'ผู้บริหาร',
+      status: 'ปฏิบัติงาน',
+      initials: 'MS'
     },
     {
       id: 5,
-      name: 'Paul Bryant',
-      position: 'Finance Manager',
-      department: 'Finance', 
-      phone: '(404) 895-4539',
-      status: 'Available',
-      initials: 'PB'
+      thaiName: 'นายกิตติ รุ่งเรือง',
+      nickname: 'กิ๊ต',
+      level: 'ระดับ 3',
+      extension: '5678',
+      departmentPhone: '02-567-8901',
+      englishName: 'Kitti Rungruang',
+      position: 'นักออกแบบกราฟิก',
+      jobType: 'งานออกแบบและสร้างสรรค์',
+      department: 'ฝ่ายสื่อสารองค์กร',
+      email: 'kitti.r@company.co.th',
+      employeeGroup: 'พนักงานสัญญาจ้าง',
+      status: 'ปฏิบัติงาน',
+      initials: 'KR'
     },
     {
       id: 6,
-      name: 'Taylor Christensen',
-      position: 'Product Designer',
-      department: 'Design',
-      phone: '(404) 660-3953',
-      status: 'Available',
-      initials: 'TC'
+      thaiName: 'นางสาวปิยะ มั่นคง',
+      nickname: 'ปิง',
+      level: 'ระดับ 5',
+      extension: '6789',
+      departmentPhone: '02-678-9012',
+      englishName: 'Piya Mankong',
+      position: 'นักวิชาการคอมพิวเตอร์',
+      jobType: 'งานพัฒนาและบำรุงรักษาระบบ',
+      department: 'ฝ่ายเทคโนโลยีสารสนเทศ',
+      email: 'piya.m@company.co.th',
+      employeeGroup: 'พนักงานประจำ',
+      status: 'ปฏิบัติงาน',
+      initials: 'PM'
     },
     {
       id: 7,
-      name: 'Melanie Crawford',
-      position: 'Marketing Coordinator',
-      department: 'Marketing',
-      phone: '(320) 039-8474',
-      status: 'Available',
-      initials: 'MC'
+      thaiName: 'นายสุรเชษฐ์ ทองดี',
+      nickname: 'เชษ',
+      level: 'ระดับ 4',
+      extension: '7890',
+      departmentPhone: '02-789-0123',
+      englishName: 'Surachet Thongdee',
+      position: 'เจ้าหน้าที่จัดซื้อ',
+      jobType: 'งานจัดหาและพัสดุ',
+      department: 'ฝ่ายบริหารทั่วไป',
+      email: 'surachet.t@company.co.th',
+      employeeGroup: 'พนักงานประจำ',
+      status: 'ปฏิบัติงาน',
+      initials: 'ST'
     }
   ]);
 
@@ -105,11 +154,14 @@ export default function PhoneDirectory() {
   const filteredEmployees = employees.filter(employee => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      (employee.name || '').toLowerCase().includes(searchLower) ||
-      (employee.email || '').toLowerCase().includes(searchLower) ||
+      (employee.thaiName || '').toLowerCase().includes(searchLower) ||
+      (employee.englishName || '').toLowerCase().includes(searchLower) ||
+      (employee.nickname || '').toLowerCase().includes(searchLower) ||
       (employee.department || '').toLowerCase().includes(searchLower) ||
       (employee.position || '').toLowerCase().includes(searchLower) ||
-      (employee.phone || '').includes(searchTerm)
+      (employee.extension || '').includes(searchTerm) ||
+      (employee.departmentPhone || '').includes(searchTerm) ||
+      (employee.email || '').toLowerCase().includes(searchLower)
     );
   });
 
@@ -123,26 +175,15 @@ export default function PhoneDirectory() {
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
   // Firebase functions (mock implementation - replace with actual Firebase SDK)
   const uploadToFirebase = async (employeeData) => {
-    // This is a mock function - replace with actual Firebase implementation
     try {
-      // Example Firebase implementation:
-      // const db = getFirestore();
-      // const batch = writeBatch(db);
-      // 
-      // employeeData.forEach((employee) => {
-      //   const docRef = doc(db, 'employees', employee.id.toString());
-      //   batch.set(docRef, employee);
-      // });
-      // 
-      // await batch.commit();
-      
       // Mock delay for demonstration
       await new Promise(resolve => setTimeout(resolve, 2000));
-      return { success: true, message: 'Data uploaded successfully to Firebase' };
+      return { success: true, message: 'อัปโหลดข้อมูลไปยัง Firebase สำเร็จ' };
     } catch (error) {
-      return { success: false, message: 'Failed to upload to Firebase: ' + error.message };
+      return { success: false, message: 'ไม่สามารถอัปโหลดไปยัง Firebase ได้: ' + error.message };
     }
   };
 
@@ -151,7 +192,7 @@ export default function PhoneDirectory() {
     if (!file) return;
 
     setIsUploading(true);
-    setUploadStatus('Parsing CSV file...');
+    setUploadStatus('กำลังแปลงไฟล์ CSV...');
 
     Papa.parse(file, {
       header: true,
@@ -159,40 +200,40 @@ export default function PhoneDirectory() {
       dynamicTyping: true,
       complete: async (results) => {
         try {
-          setUploadStatus('Processing employee data...');
+          setUploadStatus('กำลังประมวลผลข้อมูลพนักงาน...');
           
           // Process CSV data
           const processedEmployees = results.data.map((row, index) => ({
             id: row.id || (employees.length + index + 1),
-            name: (row.name || row.Name || '').toString(),
-            position: (row.position || row.Position || '').toString(),
-            department: (row.department || row.Department || '').toString(),
-            phone: (row.phone || row.Phone || '').toString(),
-            status: (row.status || row.Status || 'Available').toString(),
-            initials: ((row.name || row.Name || '').toString()).split(' ').map(n => n[0] || '').join('').toUpperCase(),
-            mobile: (row.mobile || row.Mobile || '').toString(),
-            email: (row.email || row.Email || '').toString(),
-            supervisor: (row.supervisor || row.Supervisor || '').toString(),
-            location: (row.location || row.Location || '').toString(),
-            birthday: (row.birthday || row.Birthday || '').toString(),
-            city: (row.city || row.City || '').toString(),
-            sex: (row.sex || row.Sex || '').toString()
+            thaiName: (row.thaiName || row['ชื่อ-นามสกุล (ไทย)'] || '').toString(),
+            nickname: (row.nickname || row['ชื่อเล่น'] || '').toString(),
+            level: (row.level || row['ชั้น'] || '').toString(),
+            extension: (row.extension || row['เบอร์โทรศัพท์ภายใน'] || '').toString(),
+            departmentPhone: (row.departmentPhone || row['เบอร์ส่วนงาน'] || '').toString(),
+            englishName: (row.englishName || row['ชื่อ-นามสกุล (อังกฤษ)'] || '').toString(),
+            position: (row.position || row['ชื่อตำแหน่ง'] || '').toString(),
+            jobType: (row.jobType || row['ลักษณะงาน'] || '').toString(),
+            department: (row.department || row['ชื่อหน่วยงาน'] || '').toString(),
+            email: (row.email || row['ชื่ออีเมล์'] || '').toString(),
+            employeeGroup: (row.employeeGroup || row['กลุ่มพนักงาน'] || 'พนักงานประจำ').toString(),
+            status: (row.status || 'ปฏิบัติงาน').toString(),
+            initials: ((row.englishName || row['ชื่อ-นามสกุล (อังกฤษ)'] || '').toString()).split(' ').map(n => n[0] || '').join('').toUpperCase() || 'N/A'
           }));
 
-          setUploadStatus('Uploading to Firebase...');
+          setUploadStatus('กำลังอัปโหลดไปยัง Firebase...');
           
           // Upload to Firebase
           const result = await uploadToFirebase(processedEmployees);
           
           if (result.success) {
             setEmployees(processedEmployees);
-            setUploadStatus('✅ Successfully uploaded ' + processedEmployees.length + ' employees to Firebase!');
+            setUploadStatus('✅ อัปโหลดข้อมูลพนักงาน ' + processedEmployees.length + ' คน ไปยัง Firebase สำเร็จ!');
           } else {
             setUploadStatus('❌ ' + result.message);
           }
           
         } catch (error) {
-          setUploadStatus('❌ Error processing file: ' + error.message);
+          setUploadStatus('❌ เกิดข้อผิดพลาดในการประมวลผลไฟล์: ' + error.message);
         }
         
         setIsUploading(false);
@@ -202,7 +243,7 @@ export default function PhoneDirectory() {
         }, 3000);
       },
       error: (error) => {
-        setUploadStatus('❌ Error parsing CSV: ' + error.message);
+        setUploadStatus('❌ เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: ' + error.message);
         setIsUploading(false);
       }
     });
@@ -214,19 +255,17 @@ export default function PhoneDirectory() {
   const downloadSampleCSV = () => {
     const sampleData = [
       {
-        id: 1,
-        name: 'John Doe',
-        position: 'Software Engineer',
-        department: 'Engineering',
-        phone: '(555) 123-4567',
-        status: 'Available',
-        mobile: '(555) 987-6543',
-        email: 'john.doe@company.com',
-        supervisor: 'Jane Smith',
-        location: 'New York',
-        birthday: 'January 15',
-        city: 'Manhattan',
-        sex: 'Male'
+        'ชื่อ-นามสกุล (ไทย)': 'นายตัวอย่าง ทดสอบ',
+        'ชื่อเล่น': 'ตัวอย่าง',
+        'ชั้น': 'ระดับ 5',
+        'เบอร์โทรศัพท์ภายใน': '1111',
+        'เบอร์ส่วนงาน': '02-111-1111',
+        'ชื่อ-นามสกุล (อังกฤษ)': 'Mr. Example Test',
+        'ชื่อตำแหน่ง': 'ตำแหน่งตัวอย่าง',
+        'ลักษณะงาน': 'งานตัวอย่าง',
+        'ชื่อหน่วยงาน': 'ฝ่ายตัวอย่าง',
+        'ชื่ออีเมล์': 'example.test@company.co.th',
+        'กลุ่มพนักงาน': 'พนักงานประจำ'
       }
     ];
 
@@ -235,7 +274,7 @@ export default function PhoneDirectory() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'employee_sample.csv');
+    link.setAttribute('download', 'employee_sample_thai.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -244,18 +283,18 @@ export default function PhoneDirectory() {
 
   const handleEmployeeClick = (employee) => {
     setSelectedEmployee({
-      name: employee.name || 'Unknown',
-      position: employee.position || 'No position',
-      department: employee.department || 'No department',
-      phone: employee.phone || 'No phone',
-      mobile: employee.mobile || '(472) 276-0193',
-      email: employee.email || (employee.name || 'unknown').toLowerCase().replace(' ', '') + '@company.com',
-      status: employee.status || 'Available',
-      supervisor: employee.supervisor || 'Christine Wyatt',
-      location: employee.location || 'Atlanta',
-      birthday: employee.birthday || 'September 29',
-      city: employee.city || 'Brookhead',
-      sex: employee.sex || 'Male'
+      thaiName: employee.thaiName || 'ไม่ระบุชื่อ',
+      nickname: employee.nickname || '-',
+      level: employee.level || '-',
+      extension: employee.extension || '-',
+      departmentPhone: employee.departmentPhone || '-',
+      englishName: employee.englishName || '-',
+      position: employee.position || 'ไม่ระบุตำแหน่ง',
+      jobType: employee.jobType || '-',
+      department: employee.department || 'ไม่ระบุฝ่าย',
+      email: employee.email || '-',
+      employeeGroup: employee.employeeGroup || 'พนักงานประจำ',
+      status: employee.status || 'ปฏิบัติงาน'
     });
   };
 
@@ -264,22 +303,6 @@ export default function PhoneDirectory() {
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     borderBottom: '1px solid #e5e7eb',
     padding: '16px 24px'
-  };
-
-  const navLinkStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    color: '#6b7280',
-    textDecoration: 'none',
-    padding: '8px 0',
-    cursor: 'pointer'
-  };
-
-  const activeNavLinkStyle = {
-    ...navLinkStyle,
-    color: '#40e0d0',
-    borderBottom: '2px solid #40e0d0'
   };
 
   const cardStyle = {
@@ -298,7 +321,7 @@ export default function PhoneDirectory() {
   };
 
   const buttonStyle = {
-    background: '#40e0d0',
+    background: '#10b981',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -320,7 +343,7 @@ export default function PhoneDirectory() {
 
   const thStyle = {
     background: '#f9fafb',
-    padding: '12px 24px',
+    padding: '12px 16px',
     textAlign: 'left',
     fontSize: '12px',
     fontWeight: '500',
@@ -330,8 +353,9 @@ export default function PhoneDirectory() {
   };
 
   const tdStyle = {
-    padding: '16px 24px',
-    borderBottom: '1px solid #e5e7eb'
+    padding: '16px',
+    borderBottom: '1px solid #e5e7eb',
+    fontSize: '14px'
   };
 
   const statusBadgeStyle = (status) => ({
@@ -341,15 +365,16 @@ export default function PhoneDirectory() {
     borderRadius: '9999px',
     fontSize: '12px',
     fontWeight: '600',
-    background: status === 'Available' ? '#dcfce7' : '#fee2e2',
-    color: status === 'Available' ? '#16a34a' : '#dc2626'
+    background: status === 'ปฏิบัติงาน' ? '#dcfce7' : status === 'ลาป่วย' ? '#fee2e2' : '#fef3c7',
+    color: status === 'ปฏิบัติงาน' ? '#16a34a' : status === 'ลาป่วย' ? '#dc2626' : '#d97706'
   });
 
   const avatarStyle = {
     width: '40px',
     height: '40px',
     borderRadius: '50%',
-    background: '#d1d5db',
+    background: '#10b981',
+    color: 'white',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -357,22 +382,8 @@ export default function PhoneDirectory() {
     fontWeight: '500'
   };
 
-  const socialButtonStyle = (bgColor) => ({
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    background: bgColor,
-    color: 'white',
-    border: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer'
-  });
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
-
+    <div style={{ minHeight: '100vh', background: '#f3f4f6', fontFamily: 'Sarabun, Arial, sans-serif' }}>
       <div style={{ padding: '24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           {/* Employee Directory */}
@@ -381,38 +392,38 @@ export default function PhoneDirectory() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
               <Home size={14} />
               <span>/</span>
-              <span>Employees</span>
+              <span>พนักงาน</span>
             </div>
 
-            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>Employee Directory</h2>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>ทำเนียบพนักงาน</h2>
 
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
               <button style={buttonStyle}>
-                Add Employee
+                เพิ่มพนักงาน
               </button>
               <button 
-                style={{ ...buttonStyle, background: '#10b981' }}
+                style={{ ...buttonStyle, background: '#3b82f6' }}
                 onClick={() => setShowUploadModal(true)}
               >
                 <Upload size={16} />
-                Upload CSV
+                อัปโหลด CSV
               </button>
               <button 
                 style={{ ...buttonStyle, background: '#6366f1' }}
                 onClick={downloadSampleCSV}
               >
                 <Download size={16} />
-                Sample CSV
+                ตัวอย่าง CSV
               </button>
             </div>
 
             {/* Search */}
             <div style={{ marginBottom: '24px' }}>
-              <div style={{ position: 'relative', width: '400px' }}>
+              <div style={{ position: 'relative', width: '100%', maxWidth: '500px' }}>
                 <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} size={16} />
                 <input 
                   type="text" 
-                  placeholder="Search by name, email, department, position, or phone..." 
+                  placeholder="ค้นหาด้วย ชื่อ, เบอร์ภายใน, ฝ่าย, ตำแหน่ง, อีเมล..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{ 
@@ -442,58 +453,67 @@ export default function PhoneDirectory() {
                 )}
               </div>
               <div style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}>
-                {filteredEmployees.length} employee(s) found
-                {searchTerm && ` for "${searchTerm}"`}
+                พบพนักงาน {filteredEmployees.length} คน
+                {searchTerm && ` สำหรับ "${searchTerm}"`}
               </div>
             </div>
 
             {/* Employee Table */}
-            <table style={tableStyle}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Name</th>
-                  <th style={thStyle}>Department</th>
-                  <th style={thStyle}>Phone Number</th>
-                  <th style={thStyle}>Availability</th>
-                  <th style={thStyle}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentEmployees.map((employee) => (
-                  <tr 
-                    key={employee.id} 
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleEmployeeClick(employee)}
-                    onMouseEnter={(e) => e.target.closest('tr').style.background = '#f9fafb'}
-                    onMouseLeave={(e) => e.target.closest('tr').style.background = 'white'}
-                  >
-                    <td style={tdStyle}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <div style={avatarStyle}>
-                          {employee.initials || 'N/A'}
-                        </div>
-                        <div style={{ marginLeft: '16px' }}>
-                          <div style={{ fontSize: '14px', fontWeight: '500' }}>{employee.name || 'Unknown'}</div>
-                          <div style={{ fontSize: '14px', color: '#6b7280' }}>{employee.position || 'No position'}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={tdStyle}>{employee.department || 'N/A'}</td>
-                    <td style={tdStyle}>{employee.phone || 'N/A'}</td>
-                    <td style={tdStyle}>
-                      <span style={statusBadgeStyle(employee.status)}>
-                        {employee.status}
-                      </span>
-                    </td>
-                    <td style={tdStyle}>
-                      <button style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-                        <Settings size={16} color="#9ca3af" />
-                      </button>
-                    </td>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>ชื่อ-นามสกุล</th>
+                    <th style={thStyle}>ตำแหน่ง/ฝ่าย</th>
+                    <th style={thStyle}>เบอร์ภายใน</th>
+                    <th style={thStyle}>สถานะ</th>
+                    <th style={thStyle}></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentEmployees.map((employee) => (
+                    <tr 
+                      key={employee.id} 
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleEmployeeClick(employee)}
+                      onMouseEnter={(e) => e.target.closest('tr').style.background = '#f9fafb'}
+                      onMouseLeave={(e) => e.target.closest('tr').style.background = 'white'}
+                    >
+                      <td style={tdStyle}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <div style={avatarStyle}>
+                            {employee.initials || 'N/A'}
+                          </div>
+                          <div style={{ marginLeft: '16px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: '500' }}>{employee.thaiName || 'ไม่ระบุชื่อ'}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                              {employee.nickname && `(${employee.nickname})`} {employee.englishName}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={tdStyle}>
+                        <div>
+                          <div style={{ fontSize: '14px', fontWeight: '500' }}>{employee.position || 'ไม่ระบุตำแหน่ง'}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>{employee.department || 'ไม่ระบุฝ่าย'}</div>
+                        </div>
+                      </td>
+                      <td style={tdStyle}>{employee.extension || '-'}</td>
+                      <td style={tdStyle}>
+                        <span style={statusBadgeStyle(employee.status)}>
+                          {employee.status}
+                        </span>
+                      </td>
+                      <td style={tdStyle}>
+                        <button style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                          <Settings size={16} color="#9ca3af" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
@@ -505,7 +525,7 @@ export default function PhoneDirectory() {
                 padding: '16px 0'
               }}>
                 <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredEmployees.length)} of {filteredEmployees.length} employees
+                  แสดง {startIndex + 1} ถึง {Math.min(endIndex, filteredEmployees.length)} จาก {filteredEmployees.length} คน
                 </div>
                 
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -522,7 +542,7 @@ export default function PhoneDirectory() {
                       fontSize: '14px'
                     }}
                   >
-                    Previous
+                    ก่อนหน้า
                   </button>
                   
                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -534,7 +554,7 @@ export default function PhoneDirectory() {
                           width: '36px',
                           height: '36px',
                           border: '1px solid #d1d5db',
-                          background: currentPage === page ? '#40e0d0' : 'white',
+                          background: currentPage === page ? '#10b981' : 'white',
                           color: currentPage === page ? 'white' : '#374151',
                           borderRadius: '6px',
                           cursor: 'pointer',
@@ -560,7 +580,7 @@ export default function PhoneDirectory() {
                       fontSize: '14px'
                     }}
                   >
-                    Next
+                    ถัดไป
                   </button>
                 </div>
               </div>
@@ -574,7 +594,8 @@ export default function PhoneDirectory() {
               <div style={{
                 width: '80px',
                 height: '80px',
-                background: '#d1d5db',
+                background: '#10b981',
+                color: 'white',
                 borderRadius: '50%',
                 margin: '0 auto 16px auto',
                 display: 'flex',
@@ -583,10 +604,13 @@ export default function PhoneDirectory() {
                 fontSize: '24px',
                 fontWeight: '500'
               }}>
-                {(selectedEmployee.name || 'Unknown').split(' ').map(n => n[0] || '').join('')}
+                {(selectedEmployee.englishName || 'Unknown').split(' ').map(n => n[0] || '').join('')}
               </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 4px 0' }}>{selectedEmployee.name || 'Unknown'}</h3>
-              <p style={{ color: '#6b7280', margin: '0 0 8px 0' }}>{selectedEmployee.position || 'No position'}</p>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 4px 0' }}>{selectedEmployee.thaiName}</h3>
+              <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 4px 0' }}>
+                {selectedEmployee.nickname && `(${selectedEmployee.nickname})`}
+              </p>
+              <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 8px 0' }}>{selectedEmployee.englishName}</p>
               <span style={statusBadgeStyle(selectedEmployee.status)}>
                 {selectedEmployee.status}
               </span>
@@ -596,30 +620,60 @@ export default function PhoneDirectory() {
 
             {/* Contact Information */}
             <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ fontWeight: '600', marginBottom: '12px' }}>Contact Information</h4>
+              <h4 style={{ fontWeight: '600', marginBottom: '12px', fontSize: '16px' }}>ข้อมูลติดต่อ</h4>
               <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Office Tel:</span> {selectedEmployee.phone}
+                  <span style={{ fontWeight: '500' }}>เบอร์ภายใน:</span> {selectedEmployee.extension}
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Mobile:</span> {selectedEmployee.mobile}
+                  <span style={{ fontWeight: '500' }}>เบอร์ส่วนงาน:</span> {selectedEmployee.departmentPhone}
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Email:</span> {selectedEmployee.email}
+                  <span style={{ fontWeight: '500' }}>อีเมล:</span> {selectedEmployee.email}
                 </div>
               </div>
               
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <button style={socialButtonStyle('#0077b5')}>
-                  <Linkedin size={14} />
+                <button style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: '#0077b5',
+                  color: 'white',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}>
+                  <Mail size={14} />
                 </button>
-                <button style={socialButtonStyle('#1877f2')}>
-                  <Facebook size={14} />
+                <button style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: '#25d366',
+                  color: 'white',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}>
+                  <Phone size={14} />
                 </button>
-                <button style={socialButtonStyle('#1da1f2')}>
-                  <Twitter size={14} />
-                </button>
-                <button style={socialButtonStyle('#00aff0')}>
+                <button style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: '#1877f2',
+                  color: 'white',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}>
                   <MessageCircle size={14} />
                 </button>
               </div>
@@ -629,47 +683,35 @@ export default function PhoneDirectory() {
 
             {/* Work Information */}
             <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ fontWeight: '600', marginBottom: '12px' }}>Work Information</h4>
+              <h4 style={{ fontWeight: '600', marginBottom: '12px', fontSize: '16px' }}>ข้อมูลการทำงาน</h4>
               <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Department:</span> {selectedEmployee.department}
+                  <span style={{ fontWeight: '500' }}>ตำแหน่ง:</span> {selectedEmployee.position}
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Supervisor:</span> {selectedEmployee.supervisor}
+                  <span style={{ fontWeight: '500' }}>ลักษณะงาน:</span> {selectedEmployee.jobType}
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Location:</span> {selectedEmployee.location}
-                </div>
-              </div>
-            </div>
-
-            <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '24px 0' }} />
-
-            {/* Personal Information */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ fontWeight: '600', marginBottom: '12px' }}>Personal Information</h4>
-              <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Sex:</span> {selectedEmployee.sex}
+                  <span style={{ fontWeight: '500' }}>หน่วยงาน:</span> {selectedEmployee.department}
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Birthday:</span> {selectedEmployee.birthday}
+                  <span style={{ fontWeight: '500' }}>ระดับ:</span> {selectedEmployee.level}
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>City:</span> {selectedEmployee.city}
+                  <span style={{ fontWeight: '500' }}>กลุ่มพนักงาน:</span> {selectedEmployee.employeeGroup}
                 </div>
               </div>
             </div>
 
             <button style={{ 
-              color: '#40e0d0', 
+              color: '#10b981', 
               background: 'none', 
               border: 'none', 
               cursor: 'pointer', 
               fontSize: '14px',
               textDecoration: 'underline'
             }}>
-                              View {(selectedEmployee.name || 'Unknown').split(' ')[0] || 'Employee'}'s Full Profile
+              ดูรายละเอียดเพิ่มเติมของ {(selectedEmployee.thaiName || 'พนักงาน').split(' ')[1] || selectedEmployee.nickname || 'พนักงาน'}
             </button>
           </div>
         </div>
@@ -696,13 +738,13 @@ export default function PhoneDirectory() {
               maxWidth: '90vw'
             }}>
               <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px' }}>
-                Upload Employee CSV
+                อัปโหลดไฟล์ CSV พนักงาน
               </h3>
               
               <div style={{ marginBottom: '24px' }}>
                 <p style={{ color: '#6b7280', marginBottom: '16px' }}>
-                  Upload a CSV file to update employee data in Firebase. The CSV should include columns like:
-                  name, position, department, phone, status, email, etc.
+                  อัปโหลดไฟล์ CSV เพื่ออัปเดตข้อมูลพนักงานใน Firebase ไฟล์ CSV ควรมีคอลัมน์ดังนี้:
+                  ชื่อ-นามสกุล (ไทย), ชื่อเล่น, ชั้น, เบอร์โทรศัพท์ภายใน, เบอร์ส่วนงาน, ชื่อ-นามสกุล (อังกฤษ), ชื่อตำแหน่ง, ลักษณะงาน, ชื่อหน่วยงาน, ชื่ออีเมล์, กลุ่มพนักงาน
                 </p>
                 
                 <div style={{
@@ -713,7 +755,7 @@ export default function PhoneDirectory() {
                   background: '#f9fafb'
                 }}>
                   <Upload size={48} color="#9ca3af" style={{ margin: '0 auto 16px' }} />
-                  <p style={{ marginBottom: '16px' }}>Drop your CSV file here or click to browse</p>
+                  <p style={{ marginBottom: '16px' }}>ลากไฟล์ CSV มาที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
                   <input
                     type="file"
                     accept=".csv"
@@ -732,7 +774,7 @@ export default function PhoneDirectory() {
                     }}
                   >
                     {isUploading && <Loader size={16} style={{ animation: 'spin 1s linear infinite' }} />}
-                    {isUploading ? 'Processing...' : 'Choose File'}
+                    {isUploading ? 'กำลังประมวลผล...' : 'เลือกไฟล์'}
                   </label>
                 </div>
               </div>
@@ -758,7 +800,7 @@ export default function PhoneDirectory() {
                     background: '#6b7280'
                   }}
                 >
-                  Download Sample
+                  ดาวน์โหลดตัวอย่าง
                 </button>
                 <button
                   onClick={() => setShowUploadModal(false)}
@@ -772,7 +814,7 @@ export default function PhoneDirectory() {
                   }}
                   disabled={isUploading}
                 >
-                  Close
+                  ปิด
                 </button>
               </div>
             </div>
@@ -786,6 +828,8 @@ export default function PhoneDirectory() {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
+          
+          @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap');
         `}
       </style>
     </div>
