@@ -21,7 +21,11 @@ import {
   Loader,
 } from "lucide-react";
 import Papa from "papaparse";
-import { uploadToFirebase, getAllEmployees, deleteAllEmployees } from "../services/data.config";
+import {
+  uploadToFirebase,
+  getAllEmployees,
+  deleteAllEmployees,
+} from "../services/data.config";
 
 export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   const [employees, setEmployees] = useState(initialEmployees);
@@ -76,111 +80,134 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   }, [searchTerm]);
 
   const handleCSVUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    setIsUploading(true);
-    setUploadStatus("กำลังแปลงไฟล์ CSV...");
+  setIsUploading(true);
+  setUploadStatus("กำลังแปลงไฟล์ CSV...");
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: true,
-      complete: async (results) => {
-        try {
-          setUploadStatus("กำลังประมวลผลข้อมูลพนักงาน...");
+  Papa.parse(file, {
+    header: false, // ✅ เปลี่ยนเป็น false เพื่อให้ได้ array ของ arrays
+    skipEmptyLines: true,
+    dynamicTyping: true,
+    complete: async (results) => {
+      try {
+        setUploadStatus("กำลังประมวลผลข้อมูลพนักงาน...");
 
-          const processedEmployees = results.data.map((row, index) => ({
-            id: row.id || employees.length + index + 1,
-            thaiName: (
-              row.thaiName ||
-              row["ชื่อ-นามสกุล (ไทย)"] ||
-              ""
-            ).toString(),
-            nickname: (row.nickname || row["ชื่อเล่น"] || "").toString(),
-            level: (row.level || row["ชั้น"] || "").toString(),
-            extension: (
-              row.extension ||
-              row["เบอร์โทรศัพท์ภายใน"] ||
-              ""
-            ).toString(),
-            departmentPhone: (
-              row.departmentPhone ||
-              row["เบอร์ส่วนงาน"] ||
-              ""
-            ).toString(),
-            englishName: (
-              row.englishName ||
-              row["ชื่อ-นามสกุล (อังกฤษ)"] ||
-              ""
-            ).toString(),
-            position: (row.position || row["ชื่อตำแหน่ง"] || "").toString(),
-            jobType: (row.jobType || row["ลักษณะงาน"] || "").toString(),
-            department: (
-              row.department ||
-              row["ชื่อหน่วยงาน"] ||
-              ""
-            ).toString(),
-            email: (row.email || row["ชื่ออีเมล์"] || "").toString(),
-            employeeGroup: (
-              row.employeeGroup ||
-              row["กลุ่มพนักงาน"] ||
-              "พนักงานประจำ"
-            ).toString(),
-            status: (row.status || "ปฏิบัติงาน").toString(),
+        // ✅ กรองแถวที่ไม่ใช่ข้อมูลพนักงาน
+        const filteredData = results.data.filter((row, index) => {
+          // ข้ามแถวแรกที่มีข้อมูลการติดต่อ
+          if (
+            index === 0 &&
+            row[0] &&
+            row[0].toString().includes("อัพเดทเบอร์โทรศัพท์")
+          ) {
+            return false;
+          }
+
+          // ข้ามแถวที่เป็น header หรือแถวว่าง
+          if (
+            index === 1 &&
+            row[0] &&
+            row[0].toString().includes("ชื่อ-นามสกุล")
+          ) {
+            return false;
+          }
+
+          // เก็บเฉพาะแถวที่มีข้อมูลพนักงาน (มีชื่อในคอลัมน์แรก)
+          return row[0] && row[0].toString().trim() !== "";
+        });
+
+        // ✅ แปลง array เป็น object โดยใช้ header ที่กำหนดเอง
+        const headers = [
+          "thaiName", // ชื่อ-นามสกุล (ไทย)
+          "nickname", // ชื่อเล่น
+          "level", // ชั้น
+          "extension", // เบอร์โทรศัพท์ภายใน
+          "departmentPhone", // เบอร์ส่วนงาน
+          "englishName", // ชื่อ-นามสกุล (อังกฤษ)
+          "position", // ชื่อตำแหน่ง
+          "jobType", // ลักษณะงาน
+          "department", // ชื่อหน่วยงาน
+          "email", // ชื่ออีเมล์
+          "employeeGroup", // กลุ่มพนักงาน
+        ];
+
+        const processedEmployees = filteredData.map((row, index) => {
+          const employee = {};
+
+          // แปลง array เป็น object
+          headers.forEach((header, i) => {
+            employee[header] = (row[i] || "").toString().trim();
+          });
+
+          return {
+            id: employees.length + index + 1,
+            thaiName: employee.thaiName,
+            nickname: employee.nickname,
+            level: employee.level,
+            extension: employee.extension,
+            departmentPhone: employee.departmentPhone,
+            englishName: employee.englishName,
+            position: employee.position,
+            jobType: employee.jobType,
+            department: employee.department,
+            email: employee.email,
+            employeeGroup: employee.employeeGroup || "พนักงานประจำ",
+            status: "ปฏิบัติงาน",
             initials:
-              (row.englishName || row["ชื่อ-นามสกุล (อังกฤษ)"] || "")
-                .toString()
+              employee.englishName
+                .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
                 .split(" ")
                 .map((n) => n[0] || "")
                 .join("")
                 .toUpperCase() || "N/A",
-          }));
+          };
+        });
 
-          // ✅ ลบข้อมูลเก่า
-          setUploadStatus("🗑️ กำลังลบข้อมูลเก่าทั้งหมด...");
-          const deleteResult = await deleteAllEmployees();
-          if (!deleteResult.success) {
-            setUploadStatus("❌ ลบข้อมูลเก่าล้มเหลว: " + deleteResult.message);
-            setIsUploading(false);
-            return;
-          }
+        console.log("Filtered data:", filteredData);
+        console.log("Processed employees:", processedEmployees);
 
-          // ✅ อัปโหลดใหม่
-          setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
-          const result = await uploadToFirebase(processedEmployees);
-
-          if (result.success) {
-            setEmployees(processedEmployees);
-            setUploadStatus(
-              "✅ อัปโหลดข้อมูลพนักงาน " +
-                processedEmployees.length +
-                " คน ไปยัง Firebase สำเร็จ!"
-            );
-          } else {
-            setUploadStatus("❌ " + result.message);
-          }
-        } catch (error) {
-          setUploadStatus(
-            "❌ เกิดข้อผิดพลาดในการประมวลผลไฟล์: " + error.message
-          );
+        // ✅ Firebase upload code
+        setUploadStatus("⌛ กำลังอัพเดตข้อมูลเก่า...");
+        const deleteResult = await deleteAllEmployees();
+        if (!deleteResult.success) {
+          setUploadStatus("❌ อัพเดตข้อมูลเก่าล้มเหลว: " + deleteResult.message);
+          setIsUploading(false);
+          return;
         }
 
-        setIsUploading(false);
-        setTimeout(() => {
-          setUploadStatus("");
-          setShowUploadModal(false);
-        }, 3000);
-      },
-      error: (error) => {
-        setUploadStatus("❌ เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: " + error.message);
-        setIsUploading(false);
-      },
-    });
+        setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
+        const result = await uploadToFirebase(processedEmployees);
 
-    // รีเซ็ต input
-    event.target.value = "";
-  };
+        if (result.success) {
+          setEmployees(processedEmployees);
+          setUploadStatus("✅ อัปโหลดข้อมูลพนักงาน " + processedEmployees.length + " คน ไปยัง Firebase สำเร็จ!");
+        } else {
+          setUploadStatus("❌ " + result.message);
+        }
+
+      } catch (error) {
+        setUploadStatus(
+          "❌ เกิดข้อผิดพลาดในการประมวลผลไฟล์: " + error.message
+        );
+      }
+
+      setIsUploading(false);
+      setTimeout(() => {
+        setUploadStatus("");
+        setShowUploadModal(false);
+      }, 3000);
+    },
+    error: (error) => {
+      setUploadStatus("❌ เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: " + error.message);
+      setIsUploading(false);
+    },
+  });
+
+  // รีเซ็ต input
+  event.target.value = "";
+};
 
   const downloadSampleCSV = () => {
     const sampleData = [
@@ -275,7 +302,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
     background: "#f9fafb",
     padding: "12px 16px",
     textAlign: "left",
-    fontSize: "12px",
+    fontSize: "15px",
     fontWeight: "500",
     color: "#6b7280",
     textTransform: "uppercase",
@@ -372,58 +399,58 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             {/* Search */}
             <div style={{ marginBottom: "24px" }}>
               <div
-  style={{
-    position: "relative",
-    width: "100%",
-    maxWidth: "500px",
-  }}
->
-  <Search
-    style={{
-      position: "absolute",
-      left: "12px",
-      top: "50%",
-      transform: "translateY(-50%)",
-      color: "#9ca3af",
-      pointerEvents: "none", // ให้คลิกทะลุได้
-    }}
-    size={16}
-  />
-  <input
-    type="text"
-    placeholder="ค้นหาด้วย ชื่อ, เบอร์ภายใน, ฝ่าย, ตำแหน่ง, อีเมล..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    style={{
-      ...inputStyle,
-      paddingLeft: "40px",
-      paddingRight: "40px", // ✅ กัน input ทับปุ่มกากบาท
-      width: "100%",
-      fontSize: "14px",
-      boxSizing: "border-box", // ✅ ให้ padding ไม่บวกเกินความกว้าง
-    }}
-  />
-  {searchTerm && (
-    <button
-      onClick={() => setSearchTerm("")}
-      style={{
-        position: "absolute",
-        right: "12px",
-        top: "50%",
-        transform: "translateY(-50%)",
-        background: "none",
-        border: "none",
-        color: "#9ca3af",
-        cursor: "pointer",
-        fontSize: "18px",
-        padding: 0, // ✅ ป้องกันปุ่มล้น
-        lineHeight: 1,
-      }}
-    >
-      ×
-    </button>
-  )}
-</div>
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  maxWidth: "500px",
+                }}
+              >
+                <Search
+                  style={{
+                    position: "absolute",
+                    left: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#9ca3af",
+                    pointerEvents: "none", // ให้คลิกทะลุได้
+                  }}
+                  size={16}
+                />
+                <input
+                  type="text"
+                  placeholder="ค้นหาด้วย ชื่อ, เบอร์ภายใน, ฝ่าย, ตำแหน่ง, อีเมล..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    ...inputStyle,
+                    paddingLeft: "40px",
+                    paddingRight: "40px", // ✅ กัน input ทับปุ่มกากบาท
+                    width: "100%",
+                    fontSize: "14px",
+                    boxSizing: "border-box", // ✅ ให้ padding ไม่บวกเกินความกว้าง
+                  }}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    style={{
+                      position: "absolute",
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      color: "#9ca3af",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                      padding: 0, // ✅ ป้องกันปุ่มล้น
+                      lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
 
               <div
                 style={{ marginTop: "8px", fontSize: "14px", color: "#6b7280" }}
