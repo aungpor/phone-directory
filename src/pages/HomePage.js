@@ -21,12 +21,13 @@ import {
   Loader,
 } from "lucide-react";
 import Papa from "papaparse";
-import { uploadToFirebase, getAllEmployees } from "../services/data.config";
+import { uploadToFirebase, getAllEmployees, deleteAllEmployees } from "../services/data.config";
 
 export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   const [employees, setEmployees] = useState(initialEmployees);
-  const [selectedEmployee, setSelectedEmployee] = useState(initialEmployees[0] || {});
-  
+  const [selectedEmployee, setSelectedEmployee] = useState(
+    initialEmployees[0] || {}
+  );
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
@@ -89,7 +90,6 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
         try {
           setUploadStatus("กำลังประมวลผลข้อมูลพนักงาน...");
 
-          // Process CSV data
           const processedEmployees = results.data.map((row, index) => ({
             id: row.id || employees.length + index + 1,
             thaiName: (
@@ -137,9 +137,17 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                 .toUpperCase() || "N/A",
           }));
 
-          setUploadStatus("กำลังอัปโหลดไปยัง Firebase...");
+          // ✅ ลบข้อมูลเก่า
+          setUploadStatus("🗑️ กำลังลบข้อมูลเก่าทั้งหมด...");
+          const deleteResult = await deleteAllEmployees();
+          if (!deleteResult.success) {
+            setUploadStatus("❌ ลบข้อมูลเก่าล้มเหลว: " + deleteResult.message);
+            setIsUploading(false);
+            return;
+          }
 
-          // Upload to Firebase
+          // ✅ อัปโหลดใหม่
+          setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
           const result = await uploadToFirebase(processedEmployees);
 
           if (result.success) {
@@ -170,7 +178,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
       },
     });
 
-    // Reset file input
+    // รีเซ็ต input
     event.target.value = "";
   };
 
@@ -962,7 +970,6 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
     </div>
   );
 }
-
 
 export async function getServerSideProps() {
   const response = await getAllEmployees();

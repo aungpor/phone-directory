@@ -42,3 +42,26 @@ export const getAllEmployees = async () => {
   }
 };
 
+// ลบข้อมูลทั้งหมดจาก collection "employees"
+export const deleteAllEmployees = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'employees'));
+
+    if (querySnapshot.empty) {
+      return { success: true, message: 'ไม่มีข้อมูลให้ลบ' };
+    }
+
+    const batch = writeBatch(db);
+
+    querySnapshot.forEach((docSnapshot) => {
+      const docRef = doc(db, 'employees', docSnapshot.id);
+      batch.delete(docRef);
+    });
+
+    await batch.commit();
+
+    return { success: true, message: 'ลบข้อมูลทั้งหมดใน employees สำเร็จ' };
+  } catch (error) {
+    return { success: false, message: 'เกิดข้อผิดพลาดในการลบ: ' + error.message };
+  }
+};
