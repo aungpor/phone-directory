@@ -187,7 +187,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
       {
         "ชื่อ-นามสกุล (ไทย)": "นายตัวอย่าง ทดสอบ",
         ชื่อเล่น: "ตัวอย่าง",
-        ชั้น: "ระดับ 5",
+        ชั้น: "5",
         เบอร์โทรศัพท์ภายใน: "1111",
         เบอร์ส่วนงาน: "02-111-1111",
         "ชื่อ-นามสกุล (อังกฤษ)": "Mr. Example Test",
@@ -353,7 +353,6 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                 flexWrap: "wrap",
               }}
             >
-              <button style={buttonStyle}>เพิ่มพนักงาน</button>
               <button
                 style={{ ...buttonStyle, background: "#3b82f6" }}
                 onClick={() => setShowUploadModal(true)}
@@ -373,53 +372,59 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             {/* Search */}
             <div style={{ marginBottom: "24px" }}>
               <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  maxWidth: "500px",
-                }}
-              >
-                <Search
-                  style={{
-                    position: "absolute",
-                    left: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "#9ca3af",
-                  }}
-                  size={16}
-                />
-                <input
-                  type="text"
-                  placeholder="ค้นหาด้วย ชื่อ, เบอร์ภายใน, ฝ่าย, ตำแหน่ง, อีเมล..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    paddingLeft: "40px",
-                    width: "100%",
-                    fontSize: "14px",
-                  }}
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    style={{
-                      position: "absolute",
-                      right: "12px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      background: "none",
-                      border: "none",
-                      color: "#9ca3af",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
+  style={{
+    position: "relative",
+    width: "100%",
+    maxWidth: "500px",
+  }}
+>
+  <Search
+    style={{
+      position: "absolute",
+      left: "12px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      color: "#9ca3af",
+      pointerEvents: "none", // ให้คลิกทะลุได้
+    }}
+    size={16}
+  />
+  <input
+    type="text"
+    placeholder="ค้นหาด้วย ชื่อ, เบอร์ภายใน, ฝ่าย, ตำแหน่ง, อีเมล..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    style={{
+      ...inputStyle,
+      paddingLeft: "40px",
+      paddingRight: "40px", // ✅ กัน input ทับปุ่มกากบาท
+      width: "100%",
+      fontSize: "14px",
+      boxSizing: "border-box", // ✅ ให้ padding ไม่บวกเกินความกว้าง
+    }}
+  />
+  {searchTerm && (
+    <button
+      onClick={() => setSearchTerm("")}
+      style={{
+        position: "absolute",
+        right: "12px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        background: "none",
+        border: "none",
+        color: "#9ca3af",
+        cursor: "pointer",
+        fontSize: "18px",
+        padding: 0, // ✅ ป้องกันปุ่มล้น
+        lineHeight: 1,
+      }}
+    >
+      ×
+    </button>
+  )}
+</div>
+
               <div
                 style={{ marginTop: "8px", fontSize: "14px", color: "#6b7280" }}
               >
@@ -798,7 +803,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                   {selectedEmployee.department}
                 </div>
                 <div style={{ marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "500" }}>ระดับ:</span>{" "}
+                  <span style={{ fontWeight: "500" }}>ชั้น:</span>{" "}
                   {selectedEmployee.level}
                 </div>
                 <div style={{ marginBottom: "8px" }}>
