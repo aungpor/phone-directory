@@ -658,9 +658,10 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                 <div style={{ fontSize: "14px", color: "#6b7280" }}>
                   แสดง {startIndex + 1} ถึง{" "}
                   {Math.min(endIndex, filteredEmployees.length)} จาก{" "}
-                  <span style={{color: "#00ab4e", fontWeight: "600"}}>
+                  <span style={{ color: "#00ab4e", fontWeight: "600" }}>
                     {filteredEmployees.length}
-                  </span> คน
+                  </span>{" "}
+                  คน
                 </div>
 
                 <div
@@ -783,8 +784,11 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                             style={{
                               width: "40px",
                               height: "40px",
-                              border: `2px solid ${currentPage === page ? "#00ab4e" : "#e1e5e9"}`,
-                              background: currentPage === page ? "#00ab4e" : "white",
+                              border: `2px solid ${
+                                currentPage === page ? "#00ab4e" : "#e1e5e9"
+                              }`,
+                              background:
+                                currentPage === page ? "#00ab4e" : "white",
                               color: currentPage === page ? "white" : "#00ab4e",
                               borderRadius: "8px",
                               cursor: "pointer",
@@ -868,10 +872,12 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                     style={{
                       padding: "10px 16px",
                       border: "2px solid #e1e5e9",
-                      background: currentPage === totalPages ? "#f9fafb" : "white",
+                      background:
+                        currentPage === totalPages ? "#f9fafb" : "white",
                       color: currentPage === totalPages ? "#9ca3af" : "#00ab4e",
                       borderRadius: "8px",
-                      cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                      cursor:
+                        currentPage === totalPages ? "not-allowed" : "pointer",
                       fontSize: "14px",
                       fontWeight: "500",
                       transition: "all 0.2s ease",
@@ -950,19 +956,19 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             {/* Contact Information */}
             <div style={{ marginBottom: "24px" }}>
               <h4
-                              style={{
-                                fontWeight: "700",
-                                marginBottom: "16px",
-                                fontSize: "18px",
-                                color: "#00ab4e",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                            >
-                              <Phone size={18} />
-                              ข้อมูลติดต่อ
-                            </h4>
+                style={{
+                  fontWeight: "700",
+                  marginBottom: "16px",
+                  fontSize: "18px",
+                  color: "#00ab4e",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <Phone size={18} />
+                ข้อมูลติดต่อ
+              </h4>
               <div style={{ fontSize: "14px", lineHeight: "1.6" }}>
                 <div style={{ marginBottom: "8px" }}>
                   <span style={{ fontWeight: "500" }}>เบอร์ภายใน:</span>{" "}
@@ -990,19 +996,19 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             {/* Work Information */}
             <div style={{ marginBottom: "24px" }}>
               <h4
-                              style={{
-                                fontWeight: "700",
-                                marginBottom: "16px",
-                                fontSize: "18px",
-                                color: "#00ab4e",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                            >
-                              <Users size={18} />
-                              ข้อมูลการทำงาน
-                            </h4>
+                style={{
+                  fontWeight: "700",
+                  marginBottom: "16px",
+                  fontSize: "18px",
+                  color: "#00ab4e",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <Users size={18} />
+                ข้อมูลการทำงาน
+              </h4>
               <div style={{ fontSize: "14px", lineHeight: "1.6" }}>
                 <div style={{ marginBottom: "8px" }}>
                   <span style={{ fontWeight: "500" }}>ตำแหน่ง:</span>{" "}
