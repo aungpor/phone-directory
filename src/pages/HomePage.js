@@ -139,54 +139,70 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             "employeeGroup", // กลุ่มพนักงาน
           ];
 
-          const processedEmployees = filteredData.map((row, index) => {
-            const employee = {};
-
-            // แปลง array เป็น object
-            headers.forEach((header, i) => {
-              employee[header] = (row[i] || "").toString().trim();
-            });
-
-            return {
-              id: employees.length + index + 1,
-              thaiName: employee.thaiName,
-              nickname: employee.nickname,
-              level: employee.level,
-              extension: employee.extension,
-              departmentPhone: employee.departmentPhone,
-              englishName: employee.englishName,
-              position: employee.position,
-              jobType: employee.jobType,
-              department: employee.department,
-              email: employee.email,
-              employeeGroup: employee.employeeGroup || "พนักงานประจำ",
-              status: "ปฏิบัติงาน",
-              initials:
-                employee.englishName
-                  .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
-                  .split(" ")
-                  .map((n) => n[0] || "")
-                  .join("")
-                  .toUpperCase() || "N/A",
-            };
+          const validData = filteredData.filter((row, index) => {
+            if (row.length !== headers.length) {
+              console.warn(
+                `❗ ข้ามแถว ${index + 1}: มี ${
+                  row.length
+                } คอลัมน์ แทนที่จะเป็น ${headers.length}`
+              );
+              return false;
+            }
+            return true;
           });
 
-          console.log("Filtered data:", filteredData);
-          console.log("Processed employees:", processedEmployees);
+          // ✅ แปลง array เป็น object โดยใช้ header ที่กำหนดเอง
+const processedEmployees = validData.map((row, index) => {
+  const employee = {};
 
-          // ✅ Firebase upload code
-          setUploadStatus("⌛ กำลังอัพเดตข้อมูลเก่า...");
-          const deleteResult = await deleteAllEmployees();
-          if (!deleteResult.success) {
-            setUploadStatus(
-              "❌ อัพเดตข้อมูลเก่าล้มเหลว: " + deleteResult.message
-            );
-            setIsUploading(false);
-            return;
-          }
+  // แปลง array เป็น object
+  headers.forEach((header, i) => {
+    employee[header] = (row[i] || "").toString().trim();
+  });
 
-          setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
-          const result = await uploadToFirebase(processedEmployees);
+  return {
+    id: employees.length + index + 1,
+    thaiName: employee.thaiName,
+    nickname: employee.nickname,
+    level: employee.level,
+    extension: employee.extension,
+    departmentPhone: employee.departmentPhone,
+    englishName: employee.englishName,
+    position: employee.position,
+    jobType: employee.jobType,
+    department: employee.department,
+    email: employee.email,
+    employeeGroup: employee.employeeGroup || "พนักงานประจำ",
+    status: "ปฏิบัติงาน",
+    initials:
+      employee.englishName
+        .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
+        .split(" ")
+        .map((n) => n[0] || "")
+        .join("")
+        .toUpperCase() || "N/A",
+  };
+});
+
+// ✅ ถ้าไม่มีข้อมูล หรือข้อมูลไม่ตรงตามรูปแบบ ให้ยกเลิก
+if (processedEmployees.length === 0) {
+  setUploadStatus("❌ ไม่พบข้อมูลพนักงานที่ถูกต้องในไฟล์ CSV");
+  setIsUploading(false);
+  return;
+}
+
+// ✅ เริ่มลบข้อมูลเดิมและอัปโหลดใหม่ เฉพาะเมื่อข้อมูลถูกต้อง
+setUploadStatus("⌛ กำลังอัปเดตข้อมูล...");
+const deleteResult = await deleteAllEmployees();
+if (!deleteResult.success) {
+  setUploadStatus("❌ อัปเดตข้อมูลล้มเหลว: " + deleteResult.message);
+  setIsUploading(false);
+  return;
+}
+
+setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
+const result = await uploadToFirebase(processedEmployees);
+
 
           if (result.success) {
             setEmployees(processedEmployees);
@@ -506,20 +522,7 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                         }}
                       >
                         <Upload size={16} color="#00ab4e" />
-                        อัปโหลด CSV
-                      </div>
-                      <div
-                        style={{ ...dropdownItemStyle, borderBottom: "none" }}
-                        onClick={downloadSampleCSV}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = "#f8f9fa";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = "white";
-                        }}
-                      >
-                        <Download size={16} color="#6c757d" />
-                        ดาวน์โหลดตัวอย่าง CSV
+                        แก้ไขข้อมูล
                       </div>
                     </div>
                   )}
@@ -1134,15 +1137,20 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
                   marginBottom: "16px",
                 }}
               >
-                อัปโหลดไฟล์ CSV พนักงาน
+                แก้ไขข้อมูลพนักงาน
               </h3>
 
               <div style={{ marginBottom: "24px" }}>
                 <p style={{ color: "#6b7280", marginBottom: "16px" }}>
-                  อัปโหลดไฟล์ CSV เพื่ออัปเดตข้อมูลพนักงานใน Firebase ไฟล์ CSV
-                  ควรมีคอลัมน์ดังนี้: ชื่อ-นามสกุล (ไทย), ชื่อเล่น, ชั้น,
-                  เบอร์โทรศัพท์ภายใน, เบอร์ส่วนงาน, ชื่อ-นามสกุล (อังกฤษ),
-                  ชื่อตำแหน่ง, ลักษณะงาน, ชื่อหน่วยงาน, ชื่ออีเมล์, กลุ่มพนักงาน
+                  กรุณาอัปโหลดไฟล์ข้อมูลพนักงาน (.csv) จาก{" "}
+                  <a
+                    href="https://docs.google.com/spreadsheets/d/1nmzZzzX-Wf5XLfG8pdCUIG5931BA71zP1FDpoCTLyBY/edit?gid=989996874#gid=989996874"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#00ab4e", textDecoration: "underline" }}
+                  >
+                    URL
+                  </a>
                 </p>
 
                 <div
