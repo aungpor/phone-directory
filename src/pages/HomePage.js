@@ -65,18 +65,22 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
 
   // Filter employees based on search term
   const filteredEmployees = employees.filter((employee) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (employee.thaiName || "").toLowerCase().includes(searchLower) ||
-      (employee.englishName || "").toLowerCase().includes(searchLower) ||
-      (employee.nickname || "").toLowerCase().includes(searchLower) ||
-      (employee.department || "").toLowerCase().includes(searchLower) ||
-      (employee.position || "").toLowerCase().includes(searchLower) ||
-      (employee.extension || "").includes(searchTerm) ||
-      (employee.departmentPhone || "").includes(searchTerm) ||
-      (employee.email || "").toLowerCase().includes(searchLower)
-    );
-  });
+  const searchLower = searchTerm.toLowerCase();
+  const searchDigitsOnly = searchTerm.replace(/-/g, ""); // ตัดขีดจากคำค้น
+
+  return (
+    (employee.thaiName || "").toLowerCase().includes(searchLower) ||
+    (employee.englishName || "").toLowerCase().includes(searchLower) ||
+    (employee.nickname || "").toLowerCase().includes(searchLower) ||
+    (employee.department || "").toLowerCase().includes(searchLower) ||
+    (employee.position || "").toLowerCase().includes(searchLower) ||
+    (employee.extension || "").includes(searchTerm) ||
+    (employee.departmentPhone || "").includes(searchTerm) || // แบบมีขีด
+    (employee.departmentPhone || "").replace(/-/g, "").includes(searchDigitsOnly) || // แบบไม่มีขีด
+    (employee.email || "").toLowerCase().includes(searchLower)
+  );
+});
+
 
   // Pagination logic
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -622,12 +626,11 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
               {loading ? (
                 <div
                   style={{
-                    padding: "40px",
-                    textAlign: "center",
+                    minHeight: "300px", // 👈 ให้มีความสูงพอจะจัดกลางแนวตั้ง
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    alignItems: "center", // แนวตั้ง
+                    justifyContent: "center", // แนวนอน
                   }}
                 >
                   {/* Loading Spinner */}
