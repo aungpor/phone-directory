@@ -29,6 +29,8 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
+  const [loading, setLoading] = useState(false); // สถานะ loading
+
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -51,12 +53,14 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true); // เริ่ม loading
     const response = await getAllEmployees();
     if (response.success) {
       setEmployees(response.data);
     } else {
       console.error("Error:", response.message);
     }
+    setLoading(false); // โหลดเสร็จ
   };
 
   // Filter employees based on search term
@@ -152,57 +156,56 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
           });
 
           // ✅ แปลง array เป็น object โดยใช้ header ที่กำหนดเอง
-const processedEmployees = validData.map((row, index) => {
-  const employee = {};
+          const processedEmployees = validData.map((row, index) => {
+            const employee = {};
 
-  // แปลง array เป็น object
-  headers.forEach((header, i) => {
-    employee[header] = (row[i] || "").toString().trim();
-  });
+            // แปลง array เป็น object
+            headers.forEach((header, i) => {
+              employee[header] = (row[i] || "").toString().trim();
+            });
 
-  return {
-    id: employees.length + index + 1,
-    thaiName: employee.thaiName,
-    nickname: employee.nickname,
-    level: employee.level,
-    extension: employee.extension,
-    departmentPhone: employee.departmentPhone,
-    englishName: employee.englishName,
-    position: employee.position,
-    jobType: employee.jobType,
-    department: employee.department,
-    email: employee.email,
-    employeeGroup: employee.employeeGroup || "พนักงานประจำ",
-    status: "ปฏิบัติงาน",
-    initials:
-      employee.englishName
-        .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
-        .split(" ")
-        .map((n) => n[0] || "")
-        .join("")
-        .toUpperCase() || "N/A",
-  };
-});
+            return {
+              id: employees.length + index + 1,
+              thaiName: employee.thaiName,
+              nickname: employee.nickname,
+              level: employee.level,
+              extension: employee.extension,
+              departmentPhone: employee.departmentPhone,
+              englishName: employee.englishName,
+              position: employee.position,
+              jobType: employee.jobType,
+              department: employee.department,
+              email: employee.email,
+              employeeGroup: employee.employeeGroup || "พนักงานประจำ",
+              status: "ปฏิบัติงาน",
+              initials:
+                employee.englishName
+                  .replace(/^(Mr\.|Mrs\.|Ms\.)\s*/i, "") // ลบคำนำหน้า
+                  .split(" ")
+                  .map((n) => n[0] || "")
+                  .join("")
+                  .toUpperCase() || "N/A",
+            };
+          });
 
-// ✅ ถ้าไม่มีข้อมูล หรือข้อมูลไม่ตรงตามรูปแบบ ให้ยกเลิก
-if (processedEmployees.length === 0) {
-  setUploadStatus("❌ ไม่พบข้อมูลพนักงานที่ถูกต้องในไฟล์ CSV");
-  setIsUploading(false);
-  return;
-}
+          // ✅ ถ้าไม่มีข้อมูล หรือข้อมูลไม่ตรงตามรูปแบบ ให้ยกเลิก
+          if (processedEmployees.length === 0) {
+            setUploadStatus("❌ ไม่พบข้อมูลพนักงานที่ถูกต้องในไฟล์ CSV");
+            setIsUploading(false);
+            return;
+          }
 
-// ✅ เริ่มลบข้อมูลเดิมและอัปโหลดใหม่ เฉพาะเมื่อข้อมูลถูกต้อง
-setUploadStatus("⌛ กำลังอัปเดตข้อมูล...");
-const deleteResult = await deleteAllEmployees();
-if (!deleteResult.success) {
-  setUploadStatus("❌ อัปเดตข้อมูลล้มเหลว: " + deleteResult.message);
-  setIsUploading(false);
-  return;
-}
+          // ✅ เริ่มลบข้อมูลเดิมและอัปโหลดใหม่ เฉพาะเมื่อข้อมูลถูกต้อง
+          setUploadStatus("⌛ กำลังอัปเดตข้อมูล...");
+          const deleteResult = await deleteAllEmployees();
+          if (!deleteResult.success) {
+            setUploadStatus("❌ อัปเดตข้อมูลล้มเหลว: " + deleteResult.message);
+            setIsUploading(false);
+            return;
+          }
 
-setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
-const result = await uploadToFirebase(processedEmployees);
-
+          setUploadStatus("⬆️ กำลังอัปโหลดข้อมูลใหม่...");
+          const result = await uploadToFirebase(processedEmployees);
 
           if (result.success) {
             setEmployees(processedEmployees);
@@ -616,102 +619,160 @@ const result = await uploadToFirebase(processedEmployees);
 
             {/* Employee Table */}
             <div style={{ overflowX: "auto" }}>
-              <table style={tableStyle}>
-                <thead>
-                  <tr>
-                    <th style={{ ...thStyle, width: "250px" }}>ชื่อ-นามสกุล</th>
-                    <th style={{ ...thStyle, width: "200px" }}>ตำแหน่ง/ฝ่าย</th>
-                    <th style={{ ...thStyle, width: "100px" }}>เบอร์ส่วนงาน</th>
-                    <th style={{ ...thStyle, width: "200px" }}>อีเมล</th>
-                  </tr>
-                </thead>
+              {loading ? (
+                <div
+                  style={{
+                    padding: "40px",
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {/* Loading Spinner */}
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      border: "4px solid #f3f4f6",
+                      borderTop: "4px solid #00ab4e",
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                      marginBottom: "16px",
+                    }}
+                  ></div>
 
-                <tbody>
-                  {currentEmployees.map((employee) => (
-                    <tr
-                      key={employee.id}
-                      style={{
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                      }}
-                      onClick={() => handleEmployeeClick(employee)}
-                      onMouseEnter={(e) => {
-                        e.target.closest("tr").style.background =
-                          "rgba(0, 171, 78, 0.05)";
-                        e.target.closest("tr").style.transform = "scale(1.001)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.closest("tr").style.background = "white";
-                        e.target.closest("tr").style.transform = "scale(1)";
-                      }}
-                    >
-                      <td style={tdStyle}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <div style={avatarStyle}>
-                            {employee.initials || "N/A"}
+                  {/* Loading Text */}
+                  <div
+                    style={{
+                      color: "#6b7280",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    กำลังโหลดข้อมูล...
+                  </div>
+
+                  {/* CSS Animation */}
+                  <style>
+                    {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+                  </style>
+                </div>
+              ) : (
+                <table style={tableStyle}>
+                  <thead>
+                    <tr>
+                      <th style={{ ...thStyle, width: "250px" }}>
+                        ชื่อ-นามสกุล
+                      </th>
+                      <th style={{ ...thStyle, width: "200px" }}>
+                        ตำแหน่ง/ฝ่าย
+                      </th>
+                      <th style={{ ...thStyle, width: "100px" }}>
+                        เบอร์ส่วนงาน
+                      </th>
+                      <th style={{ ...thStyle, width: "200px" }}>อีเมล</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {employees.map((employee) => (
+                      <tr
+                        key={employee.id}
+                        style={{
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                        onClick={() => handleEmployeeClick(employee)}
+                        onMouseEnter={(e) => {
+                          e.target.closest("tr").style.background =
+                            "rgba(0, 171, 78, 0.05)";
+                          e.target.closest("tr").style.transform =
+                            "scale(1.001)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.closest("tr").style.background = "white";
+                          e.target.closest("tr").style.transform = "scale(1)";
+                        }}
+                      >
+                        <td style={tdStyle}>
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <div style={avatarStyle}>
+                              {employee.initials || "N/A"}
+                            </div>
+                            <div style={{ marginLeft: "16px" }}>
+                              <div
+                                style={{
+                                  fontSize: "15px",
+                                  fontWeight: "600",
+                                  color: "#1f2937",
+                                }}
+                              >
+                                {employee.thaiName || "ไม่ระบุชื่อ"}
+                              </div>
+                              <div
+                                style={{ fontSize: "13px", color: "#6b7280" }}
+                              >
+                                {employee.nickname && `(${employee.nickname})`}{" "}
+                                {employee.englishName}
+                              </div>
+                            </div>
                           </div>
-                          <div style={{ marginLeft: "16px" }}>
+                        </td>
+                        <td style={tdStyle}>
+                          <div>
                             <div
                               style={{
-                                fontSize: "15px",
-                                fontWeight: "600",
+                                fontSize: "14px",
+                                fontWeight: "500",
                                 color: "#1f2937",
                               }}
                             >
-                              {employee.thaiName || "ไม่ระบุชื่อ"}
+                              {employee.position || "ไม่ระบุตำแหน่ง"}
                             </div>
-                            <div style={{ fontSize: "13px", color: "#6b7280" }}>
-                              {employee.nickname && `(${employee.nickname})`}{" "}
-                              {employee.englishName}
+                            <div
+                              style={{
+                                fontSize: "13px",
+                                color: "#00ab4e",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {employee.department || "ไม่ระบุฝ่าย"}
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td style={tdStyle}>
-                        <div>
-                          <div
+                        </td>
+                        <td style={tdStyle}>
+                          <span
                             style={{
-                              fontSize: "14px",
+                              color: "#1f2937",
                               fontWeight: "500",
+                            }}
+                          >
+                            {employee.departmentPhone || "-"}
+                          </span>
+                        </td>
+                        <td style={tdStyle}>
+                          <span
+                            style={{
                               color: "#1f2937",
                             }}
                           >
-                            {employee.position || "ไม่ระบุตำแหน่ง"}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: "13px",
-                              color: "#00ab4e",
-                              fontWeight: "500",
-                            }}
-                          >
-                            {employee.department || "ไม่ระบุฝ่าย"}
-                          </div>
-                        </div>
-                      </td>
-                      <td style={tdStyle}>
-                        <span
-                          style={{
-                            color: "#1f2937",
-                            fontWeight: "500",
-                          }}
-                        >
-                          {employee.departmentPhone || "-"}
-                        </span>
-                      </td>
-                      <td style={tdStyle}>
-                        <span
-                          style={{
-                            color: "#1f2937",
-                          }}
-                        >
-                          {employee.email}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            {employee.email}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* Pagination */}
