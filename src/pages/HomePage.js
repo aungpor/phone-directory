@@ -667,115 +667,102 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
         `}
                   </style>
                 </div>
-              ) : (
-                <table style={tableStyle}>
-                  <thead>
-                    <tr>
-                      <th style={{ ...thStyle, width: "250px" }}>
-                        ชื่อ-นามสกุล
-                      </th>
-                      <th style={{ ...thStyle, width: "200px" }}>
-                        ตำแหน่ง/ฝ่าย
-                      </th>
-                      <th style={{ ...thStyle, width: "100px" }}>
-                        เบอร์ส่วนงาน
-                      </th>
-                      <th style={{ ...thStyle, width: "200px" }}>อีเมล</th>
-                    </tr>
-                  </thead>
+              ) : (<table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={{ ...thStyle, width: "250px" }}>ชื่อ-นามสกุล</th>
+                    <th style={{ ...thStyle, width: "200px" }}>ตำแหน่ง/ฝ่าย</th>
+                    <th style={{ ...thStyle, width: "100px" }}>เบอร์ส่วนงาน</th>
+                    <th style={{ ...thStyle, width: "200px" }}>อีเมล</th>
+                  </tr>
+                </thead>
 
-                  <tbody>
-                    {employees.map((employee) => (
-                      <tr
-                        key={employee.id}
-                        style={{
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                        }}
-                        onClick={() => handleEmployeeClick(employee)}
-                        onMouseEnter={(e) => {
-                          e.target.closest("tr").style.background =
-                            "rgba(0, 171, 78, 0.05)";
-                          e.target.closest("tr").style.transform =
-                            "scale(1.001)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.closest("tr").style.background = "white";
-                          e.target.closest("tr").style.transform = "scale(1)";
-                        }}
-                      >
-                        <td style={tdStyle}>
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <div style={avatarStyle}>
-                              {employee.initials || "N/A"}
-                            </div>
-                            <div style={{ marginLeft: "16px" }}>
-                              <div
-                                style={{
-                                  fontSize: "15px",
-                                  fontWeight: "600",
-                                  color: "#1f2937",
-                                }}
-                              >
-                                {employee.thaiName || "ไม่ระบุชื่อ"}
-                              </div>
-                              <div
-                                style={{ fontSize: "13px", color: "#6b7280" }}
-                              >
-                                {employee.nickname && `(${employee.nickname})`}{" "}
-                                {employee.englishName}
-                              </div>
-                            </div>
+                <tbody>
+                  {currentEmployees.map((employee) => (
+                    <tr
+                      key={employee.id}
+                      style={{
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}
+                      onClick={() => handleEmployeeClick(employee)}
+                      onMouseEnter={(e) => {
+                        e.target.closest("tr").style.background =
+                          "rgba(0, 171, 78, 0.05)";
+                        e.target.closest("tr").style.transform = "scale(1.001)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.closest("tr").style.background = "white";
+                        e.target.closest("tr").style.transform = "scale(1)";
+                      }}
+                    >
+                      <td style={tdStyle}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <div style={avatarStyle}>
+                            {employee.initials || "N/A"}
                           </div>
-                        </td>
-                        <td style={tdStyle}>
-                          <div>
+                          <div style={{ marginLeft: "16px" }}>
                             <div
                               style={{
-                                fontSize: "14px",
-                                fontWeight: "500",
+                                fontSize: "15px",
+                                fontWeight: "600",
                                 color: "#1f2937",
                               }}
                             >
-                              {employee.position || "ไม่ระบุตำแหน่ง"}
+                              {employee.thaiName || "ไม่ระบุชื่อ"}
                             </div>
-                            <div
-                              style={{
-                                fontSize: "13px",
-                                color: "#00ab4e",
-                                fontWeight: "500",
-                              }}
-                            >
-                              {employee.department || "ไม่ระบุฝ่าย"}
+                            <div style={{ fontSize: "13px", color: "#6b7280" }}>
+                              {employee.nickname && `(${employee.nickname})`}{" "}
+                              {employee.englishName}
                             </div>
                           </div>
-                        </td>
-                        <td style={tdStyle}>
-                          <span
+                        </div>
+                      </td>
+                      <td style={tdStyle}>
+                        <div>
+                          <div
                             style={{
+                              fontSize: "14px",
+                              fontWeight: "500",
                               color: "#1f2937",
+                            }}
+                          >
+                            {employee.position || "ไม่ระบุตำแหน่ง"}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "13px",
+                              color: "#00ab4e",
                               fontWeight: "500",
                             }}
                           >
-                            {employee.departmentPhone || "-"}
-                          </span>
-                        </td>
-                        <td style={tdStyle}>
-                          <span
-                            style={{
-                              color: "#1f2937",
-                            }}
-                          >
-                            {employee.email}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                            {employee.department || "ไม่ระบุฝ่าย"}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={tdStyle}>
+                        <span
+                          style={{
+                            color: "#1f2937",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {employee.departmentPhone || "-"}
+                        </span>
+                      </td>
+                      <td style={tdStyle}>
+                        <span
+                          style={{
+                            color: "#1f2937",
+                          }}
+                        >
+                          {employee.email}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>)}
             </div>
 
             {/* Pagination */}
@@ -1043,10 +1030,13 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
             {/* Profile Header */}
             <div style={{ textAlign: "center", marginBottom: "28px" }}>
               <div style={largeAvatarStyle}>
-                {(selectedEmployee.englishName || "Unknown")
-                  .split(" ")
-                  .map((n) => n[0] || "")
-                  .join("")}
+                {selectedEmployee.englishName
+  ? selectedEmployee.englishName
+      .split(" ")
+      .map((n) => n[0] || "")
+      .join("")
+  : "N/A"}
+
               </div>
               <h3
                 style={{
