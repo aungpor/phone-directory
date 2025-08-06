@@ -1,21 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
-  Filter,
   Settings,
-  Bell,
-  Grid3X3,
   Home,
-  FileText,
-  Calendar,
   Users,
-  User,
   Phone,
-  Mail,
-  Linkedin,
-  Facebook,
-  Twitter,
-  MessageCircle,
   Upload,
   Download,
   Loader,
@@ -39,6 +28,23 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     fetchData(); // เรียกใช้ async function ที่อยู่ข้างใน useEffect
@@ -214,6 +220,11 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
     event.target.value = "";
   };
 
+  const handleUploadClick = () => {
+    setShowUploadModal(true);
+    setShowDropdown(false);
+  };
+
   const downloadSampleCSV = () => {
     const sampleData = [
       {
@@ -341,6 +352,48 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
     fontSize: "14px",
   };
 
+  const settingsButtonStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 12px",
+    backgroundColor: "#f8f9fa",
+    border: "2px solid #e9ecef",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "500",
+    color: "#495057",
+    transition: "all 0.2s ease",
+    position: "relative",
+  };
+
+  const dropdownItemStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "12px 16px",
+    cursor: "pointer",
+    fontSize: "14px",
+    color: "#495057",
+    transition: "background-color 0.2s ease",
+    borderBottom: "1px solid #f8f9fa",
+  };
+
+  const dropdownStyle = {
+    position: "absolute",
+    top: "100%",
+    right: "0",
+    marginTop: "4px",
+    backgroundColor: "white",
+    border: "1px solid #e9ecef",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    minWidth: "200px",
+    zIndex: 1000,
+    overflow: "hidden",
+  };
+
   const avatarStyle = {
     width: "44px",
     height: "44px",
@@ -404,60 +457,74 @@ export default function ThaiPhoneDirectory({ initialEmployees = [] }) {
               <span>พนักงาน</span>
             </div>
 
-            <h2
-              style={{
-                fontSize: "24px",
-                fontWeight: "600",
-                marginBottom: "24px",
-              }}
-            >
-              ข้อมูลพนักงาน
-            </h2>
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "24px",
+                }}
+              >
+                <h2
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: "600",
+                    margin: 0,
+                  }}
+                >
+                  ข้อมูลพนักงาน
+                </h2>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                marginBottom: "24px",
-                flexWrap: "wrap",
-              }}
-            >
-              <button
-                style={primaryButtonStyle}
-                onClick={() => setShowUploadModal(true)}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "#008a3e";
-                  e.target.style.transform = "translateY(-1px)";
-                  e.target.style.boxShadow = "0 4px 12px rgba(0, 171, 78, 0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "#00ab4e";
-                  e.target.style.transform = "translateY(0)";
-                  e.target.style.boxShadow = "none";
-                }}
-              >
-                <Upload size={16} />
-                อัปโหลด CSV
-              </button>
-              <button
-                style={secondaryButtonStyle}
-                onClick={downloadSampleCSV}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "#00ab4e";
-                  e.target.style.color = "white";
-                  e.target.style.transform = "translateY(-1px)";
-                  e.target.style.boxShadow = "0 4px 12px rgba(0, 171, 78, 0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "white";
-                  e.target.style.color = "#00ab4e";
-                  e.target.style.transform = "translateY(0)";
-                  e.target.style.boxShadow = "none";
-                }}
-              >
-                <Download size={16} />
-                ตัวอย่าง CSV
-              </button>
+                <div style={{ position: "relative" }} ref={dropdownRef}>
+                  <button
+                    style={settingsButtonStyle}
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = "#e9ecef";
+                      e.target.style.borderColor = "#dee2e6";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = "#f8f9fa";
+                      e.target.style.borderColor = "#e9ecef";
+                    }}
+                  >
+                    <Settings size={16} />
+                    การจัดการ
+                  </button>
+
+                  {showDropdown && (
+                    <div style={dropdownStyle}>
+                      <div
+                        style={dropdownItemStyle}
+                        onClick={handleUploadClick}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#f8f9fa";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "white";
+                        }}
+                      >
+                        <Upload size={16} color="#00ab4e" />
+                        อัปโหลด CSV
+                      </div>
+                      <div
+                        style={{ ...dropdownItemStyle, borderBottom: "none" }}
+                        onClick={downloadSampleCSV}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#f8f9fa";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "white";
+                        }}
+                      >
+                        <Download size={16} color="#6c757d" />
+                        ดาวน์โหลดตัวอย่าง CSV
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Search */}
